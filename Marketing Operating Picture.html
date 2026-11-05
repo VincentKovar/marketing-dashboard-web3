@@ -1,0 +1,970 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Marketing Operating Picture</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: control-room page. One sticky tab bar, one workflow per view, a summary strip above the detail. */
+:root{
+  --bg:#EDF0F3; --surface:#FFFFFF; --surface-2:#E3E8EE; --line:#CBD3DC;
+  --fg:#14202E; --muted:#4F5F72; --accent:#0A6C86; --accent-ink:#FFFFFF; --accent-soft:#D5EAF0;
+  --c-head:#0A6C86; --c-coord:#A15F00; --c-agency:#6B4AA5; --c-exec:#43546A;
+  --good:#1D7A4B; --warn:#B26A00; --crit:#B3342B;
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E151E; --surface:#16202C; --surface-2:#1E2B3A; --line:#2D3C4E;
+    --fg:#E7EDF3; --muted:#9AAABD; --accent:#4FC3DD; --accent-ink:#06222B; --accent-soft:#16333C;
+    --c-head:#4FC3DD; --c-coord:#E3A545; --c-agency:#B7A0EA; --c-exec:#9DB0C8;
+    --good:#4CC38A; --warn:#E3A545; --crit:#F0746B; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E151E; --surface:#16202C; --surface-2:#1E2B3A; --line:#2D3C4E;
+  --fg:#E7EDF3; --muted:#9AAABD; --accent:#4FC3DD; --accent-ink:#06222B; --accent-soft:#16333C;
+  --c-head:#4FC3DD; --c-coord:#E3A545; --c-agency:#B7A0EA; --c-exec:#9DB0C8;
+  --good:#4CC38A; --warn:#E3A545; --crit:#F0746B; color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-block:20px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1180px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,4.5vw,2.9rem);letter-spacing:-.02em}
+h2{font-size:1.5rem;letter-spacing:-.01em}
+h3{font-size:1.05rem}
+p{margin:0}
+ul,ol{margin:0;padding-left:1.1em}
+li+li{margin-top:4px}
+button,input{font:inherit;color:inherit}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.eyebrow{font:500 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.src{font:400 11.5px var(--f-mono);color:var(--muted)}
+.mast{display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;padding-bottom:20px}
+.mast>div{min-width:0;max-width:780px;display:flex;flex-direction:column;gap:10px}
+.lede{color:var(--muted);max-width:68ch}
+.stamp{font:500 12px var(--f-mono);border:1px dashed var(--muted);padding:4px 10px;border-radius:4px;color:var(--muted);white-space:nowrap}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);display:flex;gap:4px;overflow-x:auto;
+  border-bottom:1px solid var(--line);margin-bottom:28px;scrollbar-width:thin}
+.tabs a{flex:none;padding:12px 14px;text-decoration:none;color:var(--muted);font-weight:500;border-bottom:3px solid transparent;display:inline-flex;gap:8px;align-items:center}
+.tabs a:hover{color:var(--fg)}
+.tabs a[aria-current="page"]{color:var(--fg);border-bottom-color:var(--accent)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block}
+
+.view{display:flex;flex-direction:column;gap:40px}
+.view>*{min-width:0}
+.sec{display:flex;flex-direction:column;gap:14px;min-width:0}
+.sec-head{display:flex;flex-direction:column;gap:4px}
+.sec-head p{color:var(--muted);max-width:72ch}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+.grid.w3{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.grid>*{min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;min-width:0}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+.tiles{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;grid-template-columns:repeat(2,1fr)}
+@media (min-width:860px){.tiles{grid-template-columns:repeat(4,1fr)}}
+.tile{background:var(--surface);padding:16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.tile .n{font:700 1.9rem var(--f-display);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.tile .l{color:var(--muted);font-size:13px}
+
+.chip{display:inline-flex;align-items:center;gap:6px;font:500 12px var(--f-body);padding:2px 9px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);white-space:nowrap}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,var(--muted))}
+.o-head{--c:var(--c-head)} .o-coord{--c:var(--c-coord)} .o-agency{--c:var(--c-agency)}
+.o-sales,.o-fin,.o-exec{--c:var(--c-exec)}
+.pill{display:inline-flex;align-items:center;gap:6px;font:500 12px var(--f-body);padding:2px 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);white-space:nowrap;
+  background:color-mix(in srgb,var(--s) 14%,var(--surface));border-color:color-mix(in srgb,var(--s) 50%,var(--surface))}
+.pill::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--s)}
+.good{--s:var(--good)} .warn{--s:var(--warn)} .crit{--s:var(--crit)}
+
+.btn{font:500 13px var(--f-body);padding:7px 12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:6px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.4;cursor:default}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--f-mono)}
+tr.sel td{background:var(--accent-soft)}
+.rowbtn{background:none;border:0;padding:0;font-weight:600;cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px}
+
+.map{display:grid;gap:12px;grid-template-columns:1fr;align-items:stretch}
+@media (min-width:900px){.map{grid-template-columns:1fr auto 1.15fr auto 1fr}}
+.mapcol{display:flex;flex-direction:column;gap:10px;min-width:0}
+.mapcol h3{font-size:.8rem;font:500 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.node{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;font-weight:600}
+.node small{font-weight:400;color:var(--muted);font-size:13px}
+.node.hero{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);flex:1;justify-content:center;gap:8px}
+.node.hero small{color:var(--accent-ink);opacity:.9}
+.node.hero ul{font-weight:400;font-size:14px}
+.arrow{display:flex;align-items:center;justify-content:center;color:var(--muted);font:500 22px var(--f-mono)}
+.arrow::before{content:"\21C5"}
+@media (min-width:900px){.arrow::before{content:"\21C4"}}
+.commband{border:1px dashed var(--muted);border-radius:6px;padding:12px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;color:var(--muted);font-size:14px}
+.commband b{color:var(--fg)}
+
+.phase{display:flex;flex-direction:column;gap:8px;border-top:2px solid var(--accent);padding-top:10px}
+.phase ul{color:var(--muted);font-size:14px}
+
+.board{display:grid;grid-template-columns:repeat(5,minmax(210px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}
+.col{background:var(--surface-2);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:10px;min-width:0;align-content:start}
+.col-h{display:flex;flex-direction:column;gap:6px}
+.col-h h3{font-size:.95rem;display:flex;justify-content:space-between;gap:8px}
+.col-h small{color:var(--muted);font-size:12px}
+.kcard{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.kcard b{font-weight:600;font-size:14px}
+.kcard .sub{font-size:12px;color:var(--muted)}
+.kcard .mv{display:flex;gap:6px}
+.kcard .mv .btn{padding:3px 9px;font-size:12px}
+
+.week{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr))}
+.day{border-top:2px solid var(--line);padding-top:8px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.day b{font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.raci td,.raci th{text-align:center}
+.raci td:first-child,.raci th:first-child{text-align:left}
+.raci td{font-family:var(--f-mono)}
+
+.calc{display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.calc>*{min-width:0}
+.field{display:flex;flex-direction:column;gap:2px}
+.field .row{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.field output{font:500 13px var(--f-mono)}
+input[type=range]{width:100%;accent-color:var(--accent);margin:0}
+.outs{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+.out{display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--line);padding-top:8px;min-width:0}
+.out .l{font-size:12.5px;color:var(--muted)}
+.out b{font:700 1.5rem var(--f-display);font-variant-numeric:tabular-nums}
+.stage{display:grid;grid-template-columns:104px 1fr 64px;gap:10px;align-items:center;font-size:13px}
+.bar{height:10px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent)}
+.bar.alt>i{background:var(--c-coord)}
+.best{font-weight:600}
+.mono{font-family:var(--f-mono)}
+
+.heat td.c{text-align:center;font-family:var(--f-mono);background:color-mix(in srgb,var(--accent) var(--pc,0%),var(--surface))}
+.heat td.na{text-align:center;color:var(--muted)}
+.chhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.chval{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.chval b{font:700 1.6rem var(--f-display);font-variant-numeric:tabular-nums}
+.spark{width:120px;height:34px;flex:none}
+.spark .ln{fill:none;stroke:var(--s);stroke-width:1.75}
+.spark .ar{fill:var(--s);fill-opacity:.14;stroke:none}
+.spark .pt{fill:var(--s)}
+.chcard{display:flex;flex-direction:column;gap:10px}
+.chcard .k{font-size:13px;color:var(--muted)}
+.chcard .next{font-size:13.5px;border-top:1px solid var(--line);padding-top:8px}
+.loop{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));counter-reset:l}
+.loop div{border-top:2px solid var(--accent);padding-top:8px;display:flex;flex-direction:column;gap:2px;font-size:14px}
+.loop b{font-weight:600}
+.loop small{color:var(--muted)}
+
+.steps{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.step{flex:1 0 140px;text-align:left;display:flex;flex-direction:column;gap:2px;padding:10px 12px;border:1px solid var(--line);background:var(--surface);border-radius:6px;cursor:pointer}
+.step small{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.step b{font-weight:600}
+.step[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.step[aria-pressed="true"] small{color:var(--accent-ink);opacity:.85}
+.tasks{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+.tasks li{margin:0;display:flex;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.tasks .t{flex:1 1 280px;min-width:0}
+.tasks .who{display:flex;gap:6px;flex-wrap:wrap}
+.gate{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--warn);padding:1px 6px;border-radius:3px;margin-right:6px;color:var(--fg)}
+
+.flow{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.fstep{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;min-width:0}
+.fstep .i{font:500 12px var(--f-mono);color:var(--muted)}
+.fstep b{font-weight:600;font-size:14.5px}
+details{border-top:1px solid var(--line);padding:12px 0}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;font-weight:600}
+dl{display:grid;grid-template-columns:110px 1fr;gap:6px 14px;margin:10px 0 0;font-size:14px}
+dt{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+dd{margin:0;min-width:0}
+.checks{display:flex;flex-direction:column;gap:8px}
+.checks label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.checks input{margin-top:4px;accent-color:var(--accent)}
+.vwrap{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.vwrap>*{min-width:0}
+.vmap{width:100%;height:auto;max-width:560px;display:block}
+.vmap .ax{stroke:var(--muted);stroke-width:1}
+.vmap .grid-l{stroke:var(--line);stroke-width:1}
+.vmap .zone{fill:var(--accent);fill-opacity:.1;stroke:var(--accent);stroke-width:1.2;stroke-dasharray:5 4}
+.vmap .lab{fill:var(--muted);font:11px var(--f-body)}
+.vmap .vt{fill:var(--fg);font:600 12px var(--f-body)}
+.vmap .vd{stroke:var(--surface);stroke-width:2;cursor:pointer}
+.vmap .vd.in{fill:var(--accent)}
+.vmap .vd.out{fill:var(--warn)}
+.vmap .ring{fill:none;stroke:var(--fg);stroke-width:2}
+.quote{font:500 1.15rem/1.4 var(--f-display);border-left:3px solid var(--accent);padding-left:14px}
+
+@media (max-width:520px){
+  .stage{grid-template-columns:86px 1fr 52px}
+  dl{grid-template-columns:1fr}
+  dt{padding-top:6px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div>
+      <p class="eyebrow">Head of Marketing, Web3 and AI hub</p>
+      <h1>Marketing Operating Picture</h1>
+      <p class="lede">How one senior marketer runs brand, content, community and launches when most delivery sits with partners and a small team. Every figure on this page is sample data for discussion.</p>
+    </div>
+    <span class="stamp">Sample data</span>
+  </header>
+
+  <nav class="tabs" aria-label="Dashboard sections">
+    <a href="#overview">Overview</a>
+    <a href="#agencies"><i class="dot" aria-hidden="true"></i>Agencies</a>
+    <a href="#funnel"><i class="dot" aria-hidden="true"></i>Funnel and attribution</a>
+    <a href="#community"><i class="dot" aria-hidden="true"></i>Community</a>
+    <a href="#launch">Launches</a>
+    <a href="#voice">Voice and AI</a>
+  </nav>
+
+  <main>
+    <!-- OVERVIEW -->
+    <section class="view" id="v-overview">
+      <div class="sec">
+        <div class="sec-head">
+          <h2>The role on one page</h2>
+          <p>The posting asks one person to own brand, content, community and go-to-market, judged on business impact. These four numbers are the ones the Head of Marketing would put in front of the executive team first.</p>
+        </div>
+        <div class="tiles" id="tiles"></div>
+        <p class="src">The dot on a tab marks the three areas the posting stresses most: agency coordination, funnel metrics and community.</p>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Who does what</h2>
+          <p>Direction comes from the executive team, sales and finance. Delivery runs through a coordinator and external partners. The Head of Marketing sits in the middle and holds the approvals.</p>
+        </div>
+        <div class="map">
+          <div class="mapcol">
+            <h3>Sets direction</h3>
+            <div class="node">Executive team<small>Strategy, budget, risk appetite</small></div>
+            <div class="node">Sales and commercial leaders<small>Pipeline targets, customer feedback</small></div>
+            <div class="node">Finance<small>Attribution rules, CAC, payback</small></div>
+          </div>
+          <div class="arrow" aria-hidden="true"></div>
+          <div class="mapcol">
+            <h3>Owns</h3>
+            <div class="node hero">
+              Head of Marketing
+              <small>One accountable owner</small>
+              <ul>
+                <li>The plan, tied to revenue and pipeline</li>
+                <li>Brand voice across every venture</li>
+                <li>Every approval before work ships</li>
+                <li>The monthly commercial report</li>
+              </ul>
+            </div>
+          </div>
+          <div class="arrow" aria-hidden="true"></div>
+          <div class="mapcol">
+            <h3>Delivers through</h3>
+            <div class="node">In-house coordinator<small>Briefs, calendar, status sheet, invoices</small></div>
+            <div class="node">Agencies and freelancers<small>Brand, content, community, paid, video, developer content, PR</small></div>
+            <div class="node">AI tools with checks<small>Drafting, summaries, listening</small></div>
+          </div>
+        </div>
+        <div class="commband"><b>Communities</b><span>Developers</span><span>Users</span><span>Partners</span><span>Their questions and complaints feed the plan every week.</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>The first 90 days</h2><p>Each phase ends with something the executive team can see.</p></div>
+        <div class="grid w3">
+          <div class="phase">
+            <span class="eyebrow">Days 1 to 30</span>
+            <h3>Audit and listen</h3>
+            <ul><li>Inventory every partner, contract and monthly cost</li><li>Read the brand voice across each product and venture</li><li>Baseline the funnel and community numbers</li><li>One-to-ones with executives, sales and finance</li></ul>
+          </div>
+          <div class="phase">
+            <span class="eyebrow">Days 31 to 60</span>
+            <h3>Install the system</h3>
+            <ul><li>Partner scorecards and a standard brief template</li><li>Attribution rules agreed with finance in writing</li><li>Voice guide version one with dials per venture</li><li>Weekly rhythm running with the coordinator</li></ul>
+          </div>
+          <div class="phase">
+            <span class="eyebrow">Days 61 to 90</span>
+            <h3>Ship and prove</h3>
+            <ul><li>First integrated launch, planned to the launch workflow</li><li>First commercial contribution report to the executive team</li><li>Community retention programme live on the top two channels</li><li>Roster decisions: keep, fix or replace</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>Operating rhythm</h2><p>Reporting cadence that keeps marketing tied to sales and finance targets.</p></div>
+        <div class="grid w3">
+          <div class="phase"><span class="eyebrow">Weekly, Friday</span><h3>Flash report</h3><p>One page: spend, pipeline, community health, partner status. The coordinator assembles it and the Head adds the so-what.</p></div>
+          <div class="phase"><span class="eyebrow">Monthly</span><h3>Commercial review</h3><p>With sales and finance: attribution model, CAC, payback, retention. Decisions on moving spend between channels.</p></div>
+          <div class="phase"><span class="eyebrow">Quarterly</span><h3>Executive readout</h3><p>Plan versus result, roster changes, next quarter bets. The internal narrative is refreshed so staff and the public hear the same story.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENCIES -->
+    <section class="view" id="v-agencies" hidden>
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Partner roster</h2>
+          <p>Choose a partner to see its scorecard. Health comes from four scores on a five-point scale, reviewed monthly.</p>
+        </div>
+        <p class="src" id="roster-sum"></p>
+        <div class="vwrap">
+          <div class="panel tbl">
+            <table>
+              <thead><tr><th>Partner</th><th>Model</th><th class="num">Per month</th><th>Health</th><th class="num">Score</th></tr></thead>
+              <tbody id="roster-body"></tbody>
+            </table>
+          </div>
+          <div class="panel" id="roster-detail"></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>From brief to live</h2>
+          <p>Work moves left to right. Each column names who acts next, so the coordinator can see where things wait. Use the arrows to move a card.</p>
+        </div>
+        <p class="src" id="board-note"></p>
+        <div class="board" id="board"></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>Weekly coordination rhythm</h2><p>A fixed week keeps partners and the coordinator from chasing each other.</p></div>
+        <div class="week">
+          <div class="day"><b>Monday</b><span>Coordinator triages the queue and updates the status sheet.</span><span><span class="chip o-coord">Coordinator</span></span></div>
+          <div class="day"><b>Tuesday</b><span>Thirty-minute stand-up with two partners in rotation.</span><span><span class="chip o-agency">Agency</span> <span class="chip o-head">Head</span></span></div>
+          <div class="day"><b>Wednesday</b><span>Protected approval block. Review column cleared within two working days.</span><span><span class="chip o-head">Head</span></span></div>
+          <div class="day"><b>Thursday</b><span>Sync with sales and finance on pipeline and spend.</span><span><span class="chip o-sales">Sales</span> <span class="chip o-fin">Finance</span></span></div>
+          <div class="day"><b>Friday</b><span>Flash report goes out. Partners receive next week's briefs.</span><span><span class="chip o-coord">Coordinator</span> <span class="chip o-head">Head</span></span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>Who is accountable for what</h2><p>R responsible, A accountable, C consulted, I informed.</p></div>
+        <div class="panel tbl">
+          <table class="raci">
+            <thead><tr><th>Activity</th><th>Head</th><th>Coordinator</th><th>Agency</th><th>Sales and finance</th></tr></thead>
+            <tbody>
+              <tr><td>Marketing plan and budget</td><td>A/R</td><td>I</td><td>I</td><td>C</td></tr>
+              <tr><td>Choose and onboard partners</td><td>A/R</td><td>C</td><td>I</td><td>I</td></tr>
+              <tr><td>Creative brief</td><td>A/R</td><td>C</td><td>C</td><td>C</td></tr>
+              <tr><td>Production</td><td>A</td><td>C</td><td>R</td><td>I</td></tr>
+              <tr><td>Voice and claims review</td><td>A</td><td>R</td><td>I</td><td>C</td></tr>
+              <tr><td>Scheduling and logistics</td><td>I</td><td>A/R</td><td>C</td><td>I</td></tr>
+              <tr><td>Performance reporting</td><td>A</td><td>R</td><td>C</td><td>C</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- FUNNEL -->
+    <section class="view" id="v-funnel" hidden>
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Funnel and unit economics</h2>
+          <p>Move any slider, or try a scenario. Cost to win a customer depends on cost per visit and the three conversion steps. Customer value depends on margin and retention.</p>
+        </div>
+        <div class="seg" id="scen-btns" role="group" aria-label="Scenarios"></div>
+        <div class="panel calc">
+          <div class="stack" id="sliders"></div>
+          <div class="stack">
+            <div class="outs">
+              <div class="out"><span class="l">Cost to win a customer (CAC)</span><b id="out-cac"></b><span class="src" id="d-cac"></span></div>
+              <div class="out"><span class="l">Customer lifetime value (LTV)</span><b id="out-ltv"></b><span class="src" id="out-life"></span></div>
+              <div class="out"><span class="l">LTV to CAC</span><b id="out-ratio"></b><span id="pill-ratio"></span><span class="src" id="d-ratio"></span></div>
+              <div class="out"><span class="l">Payback on acquisition cost</span><b id="out-pay"></b><span id="pill-pay"></span></div>
+            </div>
+            <div class="stack" id="stages"></div>
+            <p class="src">Bar length uses a log scale so small counts stay visible. Healthy range used here: LTV to CAC of 3 or more, payback within 12 months.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Attribution on the same deals</h2>
+          <p>Eight sample deals, each with the touchpoints that preceded it. The model chosen decides which channel looks best, so finance and sales agree it before reporting.</p>
+        </div>
+        <div class="seg" id="attr-models" role="group" aria-label="Attribution model"></div>
+        <p id="attr-desc" class="src"></p>
+        <div class="panel tbl">
+          <table>
+            <thead><tr><th>Channel</th><th class="num">Spend, quarter</th><th class="num">Credited pipeline</th><th style="min-width:140px">Credit</th><th class="num">Pipeline per $1</th></tr></thead>
+            <tbody id="attr-body"></tbody>
+          </table>
+        </div>
+        <p id="attr-note"></p>
+        <details>
+          <summary>See the eight deals and their touchpoints</summary>
+          <div class="tbl"><table><thead><tr><th>Deal</th><th class="num">Value</th><th>Touchpoints in order</th></tr></thead><tbody id="deals-body"></tbody></table></div>
+        </details>
+      </div>
+    </section>
+
+    <!-- COMMUNITY -->
+    <section class="view" id="v-community" hidden>
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Channel health</h2>
+          <p>Each channel has one job and one number that shows whether it is doing that job. Follower counts stay out of the lead position. Trend is the change over eight weeks.</p>
+        </div>
+        <div class="grid w3" id="channels"></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Do new members stay?</h2>
+          <p>Share of each month's new members still active in a later week. Darker cells mean more members stayed.</p>
+        </div>
+        <div class="panel tbl">
+          <table class="heat">
+            <thead><tr><th>Joined</th><th class="num">Members</th><th class="num">Week 1</th><th class="num">Week 4</th><th class="num">Week 8</th><th class="num">Week 12</th></tr></thead>
+            <tbody id="cohort-body"></tbody>
+          </table>
+        </div>
+        <p class="src">Active means the member posted, replied or reacted that week. A dash means the cohort has not reached that week yet. The new Discord onboarding flow went live in September, and week 4 retention rose from 47% to 50% for September joiners.</p>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>Numbers that lead, numbers that follow</h2></div>
+        <div class="panel tbl">
+          <table>
+            <thead><tr><th>Instead of leading with</th><th>Lead with</th></tr></thead>
+            <tbody>
+              <tr><td>Follower count</td><td>Weekly active contributors</td></tr>
+              <tr><td>Impressions</td><td>Qualified conversations: developer and partner enquiries</td></tr>
+              <tr><td>Total members</td><td>Week 8 retention of new members</td></tr>
+              <tr><td>Likes and views</td><td>Tutorial completion and returning viewers</td></tr>
+              <tr><td>Giveaway sign-ups</td><td>Sign-ups that activate within 14 days</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>From community to pipeline</h2></div>
+        <div class="loop">
+          <div><b>Listen</b><small>Tag recurring questions weekly</small></div>
+          <div><b>Answer</b><small>Median first response time</small></div>
+          <div><b>Convert</b><small>Sign-ups from community links</small></div>
+          <div><b>Retain</b><small>Week 8 retention</small></div>
+          <div><b>Advocate</b><small>Contributors who help others</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAUNCH -->
+    <section class="view" id="v-launch" hidden>
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Integrated launch workflow</h2>
+          <p>One template for a product release, from planning to the post-campaign review. Choose a phase to see the tasks, who owns them and where the approval gates sit.</p>
+        </div>
+        <div class="steps" id="steps" role="group" aria-label="Launch phases"></div>
+        <div class="panel" id="phase-body"></div>
+      </div>
+    </section>
+
+    <!-- VOICE AND AI -->
+    <section class="view" id="v-voice" hidden>
+      <div class="sec">
+        <div class="sec-head">
+          <h2>One voice across several ventures</h2>
+          <p>Every venture shares four constants and adjusts two dials. Choose a venture to see how the same news reads in its voice, and whether it sits inside the shared range.</p>
+        </div>
+        <div class="vwrap">
+          <div class="stack">
+            <svg class="vmap" id="vmap" viewBox="0 0 420 320" role="img" aria-label="Map of four ventures by technical depth and formality, with a shaded shared voice range"></svg>
+            <div class="seg" id="vbtns" role="group" aria-label="Ventures"></div>
+          </div>
+          <div class="panel stack" id="vdetail"></div>
+        </div>
+        <div class="grid">
+          <div class="phase"><span class="eyebrow">Constant</span><h3>Precise</h3><p>Every figure has a source.</p></div>
+          <div class="phase"><span class="eyebrow">Constant</span><h3>Evidence first</h3><p>Proof comes before adjectives.</p></div>
+          <div class="phase"><span class="eyebrow">Constant</span><h3>No price talk</h3><p>No returns, yields or token price claims.</p></div>
+          <div class="phase"><span class="eyebrow">Constant</span><h3>Plain words first</h3><p>Jargon is defined the first time it appears.</p></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>AI inside the workflow</h2>
+          <p>AI handles first drafts and sorting. People handle judgement and sign-off. Nothing publishes without a named approver.</p>
+        </div>
+        <div class="flow" id="pipeline"></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>Release check</h2><p>Tick each item for a piece of content to see whether it is ready for approval.</p></div>
+        <div class="panel stack">
+          <div class="checks" id="checklist"></div>
+          <div id="check-status"></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>Where AI helps and where it stays out</h2></div>
+        <div id="usecases"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const usd = n => '$' + Math.round(n).toLocaleString('en-US');
+  const OWN = { head: 'Head of Marketing', coord: 'Coordinator', agency: 'Agency', sales: 'Sales', fin: 'Finance', exec: 'Executive team' };
+  const chip = o => `<span class="chip o-${o}">${OWN[o]}</span>`;
+  const pill = (s, t) => `<span class="pill ${s}">${t}</span>`;
+  const sgn = n => (n > 0 ? '+' : n < 0 ? '-' : '') + Math.abs(n).toFixed(0);
+
+  /* ---------- routing ---------- */
+  const VIEWS = ['overview', 'agencies', 'funnel', 'community', 'launch', 'voice'];
+  function showView(id) {
+    if (!VIEWS.includes(id)) id = 'overview';
+    VIEWS.forEach(v => { const el = $('#v-' + v); if (el) el.hidden = v !== id; });
+    $$('.tabs a').forEach(a => {
+      if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
+  }
+  const fromHash = () => showView((location.hash || '').slice(1));
+  window.addEventListener('hashchange', fromHash);
+
+  /* ---------- agencies ---------- */
+  const PARTNERS = [
+    { id: 'brand', name: 'Brand and design studio', scope: 'Identity system, launch visuals, templates', model: 'Retainer', cost: 14, q: 5, s: 3, f: 5, i: 3, note: 'Strong craft. Turnaround slips when briefs arrive late, so briefs now go out with a fixed five-day window.' },
+    { id: 'content', name: 'Content and thought leadership', scope: 'Long-form articles, newsletters, executive bylines', model: 'Retainer', cost: 18, q: 4, s: 4, f: 4, i: 4, note: 'Hits deadlines. Technical pieces are reviewed by an engineer before they reach the Head.' },
+    { id: 'community', name: 'Community management', scope: 'Discord and Telegram moderation, support triage', model: 'Retainer', cost: 12, q: 3, s: 2, f: 4, i: 3, note: 'First-response time on Telegram has slipped. Needs overnight coverage and a weekly queue report.' },
+    { id: 'paid', name: 'Performance and paid social', scope: 'Paid media, landing page tests', model: 'Retainer', cost: 22, q: 4, s: 4, f: 3, i: 2, note: 'Spend is steady but cost per signup rose for three weeks. Re-scope to developer audiences only.' },
+    { id: 'video', name: 'Video production', scope: 'Tutorials and explainers for YouTube', model: 'Per project', cost: 9, q: 5, s: 3, f: 4, i: 4, note: 'Tutorials hold viewers longest of any format. Batch three per shoot to cut cost.' },
+    { id: 'devrel', name: 'Developer content freelancers', scope: 'Tutorials, sample code walkthroughs', model: 'Freelance', cost: 7, q: 4, s: 4, f: 4, i: 4, note: 'Reliable and close to engineering. Candidate for a standing retainer.' },
+    { id: 'pr', name: 'PR and analyst relations', scope: 'Press, analyst briefings', model: 'Retainer', cost: 10, q: 2, s: 3, f: 3, i: 1, note: 'Coverage without a measurable link to pipeline. Narrow to analyst briefings or end at renewal.' }
+  ];
+  let selP = 'community';
+  const avg = p => (p.q + p.s + p.f + p.i) / 4;
+  const health = p => { const a = avg(p); return a >= 4 ? 'good' : a >= 3 ? 'warn' : 'crit'; };
+  const HLABEL = { good: 'On track', warn: 'Needs a fix', crit: 'At risk' };
+  const DECISION = {
+    good: 'Keep, and consider more scope at renewal.',
+    warn: 'Fix: agree a 30-day improvement plan and recheck at the next monthly review.',
+    crit: 'Re-scope to measurable work, or end at renewal.'
+  };
+  function scoreRow(label, v) {
+    return `<div class="stage" style="grid-template-columns:90px 1fr 28px"><span>${label}</span><div class="bar"><i style="width:${v / 5 * 100}%"></i></div><span class="num mono">${v}/5</span></div>`;
+  }
+  function renderRoster() {
+    const tot = PARTNERS.reduce((a, p) => a + p.cost, 0);
+    const act = PARTNERS.filter(p => health(p) !== 'good').reduce((a, p) => a + p.cost, 0);
+    $('#roster-sum').textContent = `${PARTNERS.length} partners, ${usd(tot * 1000)} per month. ${usd(act * 1000)} (${Math.round(act / tot * 100)}%) sits with partners that need action.`;
+    $('#roster-body').innerHTML = PARTNERS.map(p => `<tr class="${p.id === selP ? 'sel' : ''}">
+      <td><button class="rowbtn" data-p="${p.id}" aria-pressed="${p.id === selP}">${p.name}</button></td>
+      <td>${p.model}</td><td class="num">$${p.cost}K</td><td>${pill(health(p), HLABEL[health(p)])}</td><td class="num">${avg(p).toFixed(1)}</td></tr>`).join('');
+    const p = PARTNERS.find(x => x.id === selP);
+    $('#roster-detail').innerHTML = `
+      <div class="stack"><h3>${p.name}</h3><p class="src">${p.scope}</p></div>
+      <div class="stack">${scoreRow('Quality', p.q)}${scoreRow('Speed', p.s)}${scoreRow('Brand fit', p.f)}${scoreRow('Impact', p.i)}</div>
+      <p><b>Decision:</b> ${DECISION[health(p)]}</p>
+      <p>${p.note}</p>
+      <p>${chip('coord')} day-to-day contact ${chip('head')} owns the renewal decision</p>`;
+  }
+
+  const COLS = [
+    { n: 'Brief', o: 'head', note: 'Head writes the one-page brief' },
+    { n: 'In production', o: 'agency', note: 'Partner builds against the brief' },
+    { n: 'Review', o: 'head', note: 'Voice and claims check. Target: two working days' },
+    { n: 'Approved', o: 'coord', note: 'Coordinator schedules and tags for tracking' },
+    { n: 'Live and measured', o: 'coord', note: 'Results read against the target' }
+  ];
+  const CARDS = [
+    { id: 1, t: 'Protocol upgrade explainer', a: 'Content and thought leadership', c: 0, due: 9 },
+    { id: 2, t: 'Launch video, 90 seconds', a: 'Video production', c: 1, due: 6 },
+    { id: 3, t: 'Discord onboarding rewrite', a: 'Community management', c: 1, due: 4 },
+    { id: 4, t: 'Developer sign-up ad test', a: 'Performance and paid social', c: 1, due: 5 },
+    { id: 5, t: 'Brand guide v2 with venture dials', a: 'Brand and design studio', c: 2, due: 3 },
+    { id: 6, t: 'Analyst briefing deck', a: 'PR and analyst relations', c: 2, due: 2 },
+    { id: 7, t: 'Developer tutorial series, part 3', a: 'Developer content freelancers', c: 3, due: 2 },
+    { id: 8, t: 'Ecosystem partner announcement', a: 'Content and thought leadership', c: 4, due: 0 }
+  ];
+  function renderBoard() {
+    const waiting = CARDS.filter(c => COLS[c.c].o === 'head').length;
+    $('#board-note').textContent = `${waiting} of ${CARDS.length} cards are waiting on the Head of Marketing. Keeping that number low is the first measure of whether coordination works.`;
+    $('#board').innerHTML = COLS.map((col, ci) => {
+      const cards = CARDS.filter(c => c.c === ci);
+      return `<div class="col"><div class="col-h"><h3><span>${col.n}</span><span class="mono">${cards.length}</span></h3>
+        <span>${chip(col.o)}</span><small>${col.note}</small></div>
+        ${cards.map(c => `<div class="kcard"><b>${c.t}</b><span class="sub">${c.a}</span>
+          <span class="sub">${ci === 4 ? 'Live' : 'Due in ' + c.due + ' days'}</span>
+          <div class="mv"><button class="btn" data-mv="${c.id}:-1" ${ci === 0 ? 'disabled' : ''} aria-label="Move ${c.t} back">Back</button>
+          <button class="btn" data-mv="${c.id}:1" ${ci === COLS.length - 1 ? 'disabled' : ''} aria-label="Move ${c.t} forward">Forward</button></div></div>`).join('')}
+      </div>`;
+    }).join('');
+  }
+  function moveCard(spec) {
+    const [id, d] = spec.split(':').map(Number);
+    const c = CARDS.find(x => x.id === id);
+    if (!c) return;
+    c.c = Math.max(0, Math.min(COLS.length - 1, c.c + d));
+    renderBoard();
+    const b = $(`[data-mv="${spec}"]`);
+    if (b && !b.disabled) b.focus();
+  }
+
+  /* ---------- funnel ---------- */
+  const BASE = { spend: 60, cpv: 9, v2s: 5, s2a: 30, a2c: 10, arpa: 1500, gm: 70, ret: 93 };
+  const DEFS = [
+    ['spend', 'Monthly program spend', 10, 200, 5, v => `$${v}K`],
+    ['cpv', 'Cost per qualified visit', 1, 30, 0.5, v => `$${(+v).toFixed(2)}`],
+    ['v2s', 'Visit to sign-up', 1, 20, 0.5, v => `${(+v).toFixed(1)}%`],
+    ['s2a', 'Sign-up to activated', 5, 70, 1, v => `${v}%`],
+    ['a2c', 'Activated to customer', 2, 30, 0.5, v => `${(+v).toFixed(1)}%`],
+    ['arpa', 'Revenue per customer, per month', 200, 10000, 100, v => usd(+v)],
+    ['gm', 'Gross margin', 30, 95, 1, v => `${v}%`],
+    ['ret', 'Monthly customer retention', 80, 99, 1, v => `${v}%`]
+  ];
+  const SCEN = {
+    base: { label: 'Baseline', set: {} },
+    onb: { label: 'Fix onboarding, +30% activation', set: { s2a: 39 } },
+    paid: { label: 'Cut paid waste, -25% cost per visit', set: { cpv: 6.75 } },
+    ret: { label: 'Lift retention, +3 points', set: { ret: 96 } },
+    all: { label: 'All three', set: { s2a: 39, cpv: 6.75, ret: 96 } }
+  };
+  let F = Object.assign({}, BASE);
+  let scen = 'base';
+  function calc(f) {
+    const spend = f.spend * 1000;
+    const visits = spend / f.cpv;
+    const signups = visits * f.v2s / 100;
+    const active = signups * f.s2a / 100;
+    const cust = active * f.a2c / 100;
+    const cac = cust > 0 ? spend / cust : Infinity;
+    const margin = f.arpa * f.gm / 100;
+    const life = 1 / (1 - f.ret / 100);
+    const ltv = margin * life;
+    return { visits, signups, active, cust, cac, margin, life, ltv, ratio: ltv / cac, payback: cac / margin };
+  }
+  function buildFunnelControls() {
+    $('#sliders').innerHTML = DEFS.map(([k, label, min, max, step]) =>
+      `<div class="field"><div class="row"><label for="f-${k}">${label}</label><output id="o-${k}" for="f-${k}"></output></div>
+       <input id="f-${k}" type="range" min="${min}" max="${max}" step="${step}" value="${F[k]}"></div>`).join('');
+    $('#scen-btns').innerHTML = Object.keys(SCEN).map(k => `<button class="btn" data-s="${k}" aria-pressed="${k === scen}">${SCEN[k].label}</button>`).join('');
+    DEFS.forEach(([k]) => {
+      $('#f-' + k).addEventListener('input', e => { F[k] = parseFloat(e.target.value); scen = 'custom'; updateFunnel(); });
+    });
+  }
+  const fmtN = n => (n >= 100 ? Math.round(n).toLocaleString('en-US') : n.toFixed(1));
+  function updateFunnel() {
+    const r = calc(F), b = calc(BASE);
+    DEFS.forEach(([k, , , , , f]) => { $('#o-' + k).textContent = f(F[k]); const inp = $('#f-' + k); if (inp && +inp.value !== F[k]) inp.value = F[k]; });
+    $$('#scen-btns .btn').forEach(el => el.setAttribute('aria-pressed', String(el.dataset.s === scen)));
+    $('#out-cac').textContent = usd(r.cac);
+    const dc = (r.cac / b.cac - 1) * 100;
+    $('#d-cac').textContent = Math.abs(dc) < 0.5 ? 'Baseline' : `${sgn(dc)}% vs baseline`;
+    $('#out-ltv').textContent = usd(r.ltv);
+    $('#out-life').textContent = `${usd(r.margin)} margin a month for about ${r.life.toFixed(1)} months`;
+    $('#out-ratio').textContent = r.ratio.toFixed(1) + 'x';
+    $('#d-ratio').textContent = Math.abs(r.ratio - b.ratio) < 0.05 ? 'Baseline' : `from ${b.ratio.toFixed(1)}x`;
+    $('#pill-ratio').innerHTML = r.ratio >= 3 ? pill('good', 'Healthy') : r.ratio >= 2 ? pill('warn', 'Watch') : pill('crit', 'Weak');
+    $('#out-pay').textContent = r.payback.toFixed(1) + ' months';
+    $('#pill-pay').innerHTML = r.payback <= 12 ? pill('good', 'Within 12 months') : r.payback <= 18 ? pill('warn', 'Slow') : pill('crit', 'Too slow');
+    const st = [['Qualified visits', r.visits], ['Sign-ups', r.signups], ['Activated', r.active], ['Customers', r.cust]];
+    const top = Math.log10(r.visits + 1);
+    $('#stages').innerHTML = st.map(([n, v]) => `<div class="stage"><span>${n}</span><div class="bar"><i style="width:${Math.max(2, Math.log10(v + 1) / top * 100)}%"></i></div><span class="num mono">${fmtN(v)}</span></div>`).join('');
+    renderTiles(r);
+  }
+
+  /* attribution */
+  const CH = ['X', 'Discord', 'Telegram', 'YouTube', 'Reddit', 'Developer docs', 'Partner events'];
+  const SPEND = { 'X': 30, 'Discord': 22, 'Telegram': 12, 'YouTube': 40, 'Reddit': 10, 'Developer docs': 35, 'Partner events': 60 };
+  const DEALS = [
+    { n: 'Payments integrator', v: 180, p: ['X', 'YouTube', 'Developer docs', 'Partner events'] },
+    { n: 'Wallet partner', v: 90, p: ['Reddit', 'Developer docs', 'Discord'] },
+    { n: 'Custody platform', v: 240, p: ['Partner events', 'Developer docs', 'X', 'Discord', 'Partner events'] },
+    { n: 'Analytics vendor', v: 60, p: ['YouTube', 'Discord'] },
+    { n: 'Fintech pilot', v: 150, p: ['X', 'Telegram', 'Developer docs'] },
+    { n: 'Gaming studio', v: 75, p: ['Reddit', 'X', 'Developer docs'] },
+    { n: 'Infrastructure provider', v: 210, p: ['Discord', 'Developer docs', 'YouTube', 'Partner events'] },
+    { n: 'Regional exchange', v: 45, p: ['Telegram', 'Discord'] }
+  ];
+  const MODELS = {
+    first: { label: 'First touch', desc: 'All credit goes to the first touchpoint.' },
+    last: { label: 'Last touch', desc: 'All credit goes to the last touchpoint before the deal.' },
+    linear: { label: 'Linear', desc: 'Every touchpoint gets an equal share.' },
+    pos: { label: 'Position-based', desc: '40% to the first touch, 40% to the last, 20% shared by the middle.' }
+  };
+  let model = 'linear';
+  function credit(m) {
+    const c = {}; CH.forEach(x => { c[x] = 0; });
+    DEALS.forEach(d => {
+      const p = d.p, n = p.length;
+      if (m === 'first') c[p[0]] += d.v;
+      else if (m === 'last') c[p[n - 1]] += d.v;
+      else if (m === 'linear') p.forEach(x => { c[x] += d.v / n; });
+      else if (n === 1) c[p[0]] += d.v;
+      else if (n === 2) { c[p[0]] += d.v / 2; c[p[1]] += d.v / 2; }
+      else { c[p[0]] += d.v * 0.4; c[p[n - 1]] += d.v * 0.4; p.slice(1, n - 1).forEach(x => { c[x] += d.v * 0.2 / (n - 2); }); }
+    });
+    return c;
+  }
+  const TOTAL_PIPE = DEALS.reduce((a, d) => a + d.v, 0);
+  const TOTAL_SPEND = CH.reduce((a, c) => a + SPEND[c], 0);
+  const GMAX = Math.max(...Object.keys(MODELS).map(m => Math.max(...Object.values(credit(m)))));
+  function renderAttr() {
+    $('#attr-models').innerHTML = Object.keys(MODELS).map(k => `<button class="btn" data-m="${k}" aria-pressed="${k === model}">${MODELS[k].label}</button>`).join('');
+    $('#attr-desc').textContent = MODELS[model].desc;
+    const cr = credit(model);
+    const rows = CH.map(c => ({ c, cr: cr[c], sp: SPEND[c], roi: cr[c] / SPEND[c] })).sort((a, b) => b.cr - a.cr);
+    const bestRoi = rows.reduce((a, b) => (b.roi > a.roi ? b : a));
+    $('#attr-body').innerHTML = rows.map(r => `<tr><td class="${r === bestRoi ? 'best' : ''}">${r.c}</td><td class="num">$${r.sp}K</td><td class="num">$${Math.round(r.cr)}K</td>
+      <td><div class="bar alt"><i style="width:${r.cr / GMAX * 100}%"></i></div></td><td class="num ${r === bestRoi ? 'best' : ''}">$${r.roi.toFixed(2)}</td></tr>`).join('');
+    $('#attr-note').innerHTML = `Under <b>${MODELS[model].label.toLowerCase()}</b>, the best return is <b>${bestRoi.c}</b> at $${bestRoi.roi.toFixed(2)} of pipeline per $1 spent. The most credited channel is <b>${rows[0].c}</b> at $${Math.round(rows[0].cr)}K. Total credit is $${Math.round(rows.reduce((a, r) => a + r.cr, 0))}K, equal to the $${TOTAL_PIPE}K of deal value in every model.`;
+    $('#deals-body').innerHTML = DEALS.map(d => `<tr><td>${d.n}</td><td class="num">$${d.v}K</td><td>${d.p.join(' → ')}</td></tr>`).join('');
+  }
+
+  /* ---------- community ---------- */
+  const CHANNELS = [
+    { n: 'X', job: 'Reach and narrative', k: 'Link clicks from developers and partners, per week', u: '', dir: 'up', v: [520, 505, 515, 498, 510, 500, 507, 503], run: 'Five posts a week. One technical thread weekly, written by an engineer and edited by marketing.', next: 'Traffic is flat. Test thread topics drawn from the most common Discord questions.' },
+    { n: 'Discord', job: 'Home base for builders and support', k: 'Weekly active contributors', u: '', dir: 'up', v: [210, 220, 235, 228, 250, 262, 270, 281], run: 'Role-based channels, a new onboarding flow, office hours every Thursday.', next: 'Keep the onboarding flow. Recognise the top ten helpers each month.' },
+    { n: 'Telegram', job: 'Announcements and everyday user questions, with heavy scam risk', k: 'Median first response, minutes', u: ' min', dir: 'down', v: [38, 35, 33, 30, 31, 34, 37, 41], run: 'Verified admin list, pinned scam warning, moderator rota.', next: 'Response time is getting worse. Add an overnight shift and send the queue report to the Head weekly.' },
+    { n: 'YouTube', job: 'Teaching and trust', k: 'Average view duration on tutorials, minutes', u: ' min', dir: 'up', v: [3.1, 3.3, 3.2, 3.6, 3.8, 3.7, 4.1, 4.3], run: 'One tutorial and one explainer a month, with chapters and transcripts.', next: 'Batch three tutorials per shoot and link each from the docs.' },
+    { n: 'Reddit', job: 'Honest feedback and search discovery', k: 'Threads with a team reply within 24 hours', u: '%', dir: 'up', v: [62, 63, 61, 64, 62, 63, 61, 63], run: 'Named team accounts, no promotional posts, a monthly Q and A.', next: 'Steady. Move two team members onto a daily thread sweep.' }
+  ];
+  function spark(v, w = 120, h = 34, pad = 3) {
+    const mn = Math.min(...v), mx = Math.max(...v), rng = mx - mn || 1;
+    const pts = v.map((x, i) => [pad + i * (w - 2 * pad) / (v.length - 1), h - pad - (x - mn) / rng * (h - 2 * pad)]);
+    const line = pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+    const area = `${pad},${h - pad} ${line} ${w - pad},${h - pad}`;
+    const e = pts[pts.length - 1];
+    return `<svg class="spark" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polygon class="ar" points="${area}"/><polyline class="ln" points="${line}"/><circle class="pt" cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="3"/></svg>`;
+  }
+  function chState(c) {
+    const first = c.v[0], last = c.v[c.v.length - 1];
+    const ch = (last - first) / first * 100;
+    const good = c.dir === 'up' ? ch : -ch;
+    return { ch, state: good > 5 ? 'good' : good < -5 ? 'crit' : 'warn' };
+  }
+  const CSTATE = { good: 'Healthy', warn: 'Flat', crit: 'Slipping' };
+  function renderChannels() {
+    $('#channels').innerHTML = CHANNELS.map(c => {
+      const s = chState(c), last = c.v[c.v.length - 1];
+      return `<div class="panel chcard ${s.state}">
+        <div class="chhead"><div><h3>${c.n}</h3><span class="src">${c.job}</span></div>${pill(s.state, CSTATE[s.state])}</div>
+        <span class="k">${c.k}</span>
+        <div class="chval"><b>${Number.isInteger(last) ? last.toLocaleString('en-US') : last.toFixed(1)}${c.u}</b>${spark(c.v)}</div>
+        <span class="src">${sgn(s.ch)}% over 8 weeks${c.dir === 'down' ? ', lower is better' : ''}</span>
+        <p class="k">${c.run}</p>
+        <p class="next"><b>Next move:</b> ${c.next}</p></div>`;
+    }).join('');
+  }
+  const COH = [
+    { m: 'Jun', n: 1240, v: [62, 41, 33, 29] },
+    { m: 'Jul', n: 1310, v: [64, 44, 35, 31] },
+    { m: 'Aug', n: 1420, v: [66, 47, 38, null] },
+    { m: 'Sep', n: 1560, v: [69, 50, null, null] },
+    { m: 'Oct', n: 1690, v: [71, 53, null, null] }
+  ];
+  const W8 = COH.map(c => c.v[2]).filter(x => x != null);
+  const W8AVG = W8.reduce((a, b) => a + b, 0) / W8.length;
+  function renderCohort() {
+    $('#cohort-body').innerHTML = COH.map(c => `<tr><td>${c.m} joiners</td><td class="num">${c.n.toLocaleString('en-US')}</td>${c.v.map(x => x == null ? '<td class="na">-</td>' : `<td class="c" style="--pc:${Math.round(x / 75 * 50)}%">${x}%</td>`).join('')}</tr>`).join('');
+  }
+
+  /* ---------- overview tiles ---------- */
+  function renderTiles(r) {
+    r = r || calc(F);
+    const pipe = TOTAL_PIPE >= 1000 ? `$${(TOTAL_PIPE / 1000).toFixed(2)}M` : `$${TOTAL_PIPE}K`;
+    const t = [
+      [pipe, 'Marketing-sourced pipeline, per quarter', `Source: Funnel tab, ${DEALS.length} sample deals`],
+      [usd(r.cac), 'Cost to win a customer (CAC)', 'Source: Funnel tab calculator, live'],
+      [r.ratio.toFixed(1) + 'x', 'Customer value to cost (LTV to CAC)', 'Source: Funnel tab calculator, live'],
+      [Math.round(W8AVG) + '%', 'Week 8 community retention', 'Source: Community tab, Jun to Aug joiners']
+    ];
+    $('#tiles').innerHTML = t.map(([n, l, s]) => `<div class="tile"><span class="n">${n}</span><span class="l">${l}</span><span class="src">${s}</span></div>`).join('');
+  }
+
+  /* ---------- launch ---------- */
+  const PHASES = [
+    { w: 'T minus 8 weeks', n: 'Plan', tasks: [
+      ['Agree the launch goal as a revenue or adoption number with sales and finance', ['head', 'sales', 'fin']],
+      ['Choose one primary audience: developers, users or partners', ['head']],
+      ['Set the budget and the attribution rule before any spend starts', ['head', 'fin']],
+      ['Confirm the legal and compliance review path for token and financial claims', ['head', 'exec'], true]
+    ] },
+    { w: 'T minus 6 weeks', n: 'Brief', tasks: [
+      ['Write a one-page launch brief: message, proof points, call to action', ['head']],
+      ['Brief every partner in one kickoff from the same document', ['head', 'agency']],
+      ['Build the launch calendar and dependency tracker', ['coord']],
+      ['Draft the internal narrative so staff hear it first', ['head', 'exec']]
+    ] },
+    { w: 'T minus 4 weeks', n: 'Build', tasks: [
+      ['Produce content, video, landing page and community assets', ['agency']],
+      ['Voice and claims review on every asset', ['head', 'coord'], true],
+      ['Set up tracking: campaign tags, dashboards, conversion events', ['agency', 'coord']],
+      ['Create AI-assisted social and FAQ variants, checked by a person', ['coord']]
+    ] },
+    { w: 'T minus 1 week', n: 'Prepare', tasks: [
+      ['Brief moderators and support on likely questions and scam attempts', ['coord', 'agency']],
+      ['Dry run of links, tracking and the rollback plan', ['coord']],
+      ['Give sales a one-pager and partner pack', ['head', 'sales']],
+      ['Final go or no-go with the executive team', ['head', 'exec'], true]
+    ] },
+    { w: 'Launch day', n: 'Launch', tasks: [
+      ['Release in stages: community first, then partners, then public', ['coord', 'agency']],
+      ['Watch sentiment, the support queue and impersonation reports', ['agency', 'coord']],
+      ['Hold a fifteen-minute stand-up daily for the first week', ['head', 'coord']],
+      ['Field executive and press questions', ['head']]
+    ] },
+    { w: 'T plus 4 weeks', n: 'Review', tasks: [
+      ['Read results against the goal with sales and finance', ['head', 'sales', 'fin']],
+      ['Collect partner scorecards and decide keep, fix or replace', ['head', 'coord']],
+      ['Write down three things to repeat and three to stop', ['head']],
+      ['Feed the lessons into next quarter\'s plan', ['head', 'exec']]
+    ] }
+  ];
+  const SCORE = [
+    { m: 'Developer sign-ups', t: 1200, a: 1430, dir: 'up', f: n => n.toLocaleString('en-US') },
+    { m: 'Sourced pipeline', t: 400, a: 340, dir: 'up', f: n => '$' + n + 'K' },
+    { m: 'Blended CAC', t: 6000, a: 6900, dir: 'down', f: usd },
+    { m: 'Week 4 community retention', t: 45, a: 47, dir: 'up', f: n => n + '%' }
+  ];
+  function scoreState(s) {
+    const e = 1e-9;
+    if (s.dir === 'up') return s.a >= s.t ? 'good' : s.a >= s.t * 0.85 - e ? 'warn' : 'crit';
+    return s.a <= s.t ? 'good' : s.a <= s.t * 1.15 + e ? 'warn' : 'crit';
+  }
+  const SLABEL = { good: 'On target', warn: 'Close', crit: 'Missed' };
+  let ph = 0;
+  function renderLaunch() {
+    $('#steps').innerHTML = PHASES.map((p, i) => `<button class="step" data-ph="${i}" aria-pressed="${i === ph}"><small>${p.w}</small><b>${p.n}</b></button>`).join('');
+    const p = PHASES[ph];
+    let html = `<div class="stack"><h3>${p.n}: ${p.w}</h3><ul class="tasks">${p.tasks.map(t => `<li><span class="t">${t[2] ? '<span class="gate">Gate</span>' : ''}${t[0]}</span><span class="who">${t[1].map(chip).join('')}</span></li>`).join('')}</ul></div>`;
+    if (ph === PHASES.length - 1) {
+      html += `<div class="stack" style="margin-top:18px"><h3>Sample post-campaign scorecard</h3><div class="tbl"><table><thead><tr><th>Measure</th><th class="num">Target</th><th class="num">Actual</th><th>Status</th></tr></thead><tbody>${SCORE.map(s => { const st = scoreState(s); return `<tr><td>${s.m}</td><td class="num">${s.f(s.t)}</td><td class="num">${s.f(s.a)}</td><td>${pill(st, SLABEL[st])}</td></tr>`; }).join('')}</tbody></table></div><p class="src">Close means within 15% of target. The review asks why pipeline and CAC lagged while sign-ups and retention beat target.</p></div>`;
+    }
+    $('#phase-body').innerHTML = html;
+  }
+
+  /* ---------- voice and AI ---------- */
+  const VENT = [
+    { id: 'protocol', n: 'Core protocol', x: 0.85, y: 0.78, line: 'Epoch 421 activates the revised fee model. The specification and audit report are linked below.', fix: 'Inside the shared range. Keep the four constants and adjust only the dials.' },
+    { id: 'dev', n: 'Developer tools', x: 0.72, y: 0.42, line: 'New SDK release: faster signing, one breaking change, and a migration guide that takes about ten minutes.', fix: 'Inside the shared range. Keep the four constants and adjust only the dials.' },
+    { id: 'wallet', n: 'Consumer wallet', x: 0.12, y: 0.18, line: 'Sending is faster from today. Update your wallet and you will see it on your next transfer.', fix: 'Outside the shared range: too casual for a product that moves money. Move one notch toward formal and state the fee figure.' },
+    { id: 'partner', n: 'Partners and enterprise', x: 0.45, y: 0.74, line: 'The network upgrade lowers settlement costs for integrators. Our team can walk your engineers through it this week.', fix: 'Inside the shared range. Keep the four constants and adjust only the dials.' }
+  ];
+  const ZONE = { x0: 0.2, x1: 0.9, y0: 0.2, y1: 0.85 };
+  const inZone = v => v.x >= ZONE.x0 && v.x <= ZONE.x1 && v.y >= ZONE.y0 && v.y <= ZONE.y1;
+  let selV = 'wallet';
+  const VB = { l: 44, t: 14, w: 360, h: 250 };
+  const vx = x => VB.l + x * VB.w;
+  const vy = y => VB.t + (1 - y) * VB.h;
+  function renderVoice() {
+    let s = '';
+    [0.25, 0.5, 0.75].forEach(g => { s += `<line class="grid-l" x1="${vx(g)}" y1="${VB.t}" x2="${vx(g)}" y2="${VB.t + VB.h}"/><line class="grid-l" x1="${VB.l}" y1="${vy(g)}" x2="${VB.l + VB.w}" y2="${vy(g)}"/>`; });
+    s += `<rect class="zone" x="${vx(ZONE.x0)}" y="${vy(ZONE.y1)}" width="${(ZONE.x1 - ZONE.x0) * VB.w}" height="${(ZONE.y1 - ZONE.y0) * VB.h}"/>`;
+    s += `<line class="ax" x1="${VB.l}" y1="${VB.t + VB.h}" x2="${VB.l + VB.w}" y2="${VB.t + VB.h}"/><line class="ax" x1="${VB.l}" y1="${VB.t}" x2="${VB.l}" y2="${VB.t + VB.h}"/>`;
+    s += `<text class="lab" x="${VB.l}" y="${VB.t + VB.h + 18}">Plain</text><text class="lab" x="${VB.l + VB.w}" y="${VB.t + VB.h + 18}" text-anchor="end">Technical depth</text>`;
+    s += `<text class="lab" x="${vx(ZONE.x0) + 6}" y="${vy(ZONE.y1) + 14}">Shared voice range</text>`;
+    s += `<text class="lab" transform="translate(12 ${VB.t + VB.h}) rotate(-90)">Casual</text><text class="lab" transform="translate(12 ${VB.t}) rotate(-90)" text-anchor="end">Formal</text>`;
+    VENT.forEach(v => {
+      const cx = vx(v.x), cy = vy(v.y), on = v.id === selV, left = v.x > 0.8;
+      s += `<g data-v="${v.id}" tabindex="0" role="button" aria-label="${v.n}">`;
+      if (on) s += `<circle class="ring" cx="${cx}" cy="${cy}" r="11"/>`;
+      s += `<circle class="vd ${inZone(v) ? 'in' : 'out'}" cx="${cx}" cy="${cy}" r="7"/>`;
+      s += `<text class="vt" x="${left ? cx - 14 : cx + 14}" y="${cy + 4}" text-anchor="${left ? 'end' : 'start'}">${v.n}</text></g>`;
+    });
+    $('#vmap').innerHTML = s;
+    $('#vbtns').innerHTML = VENT.map(v => `<button class="btn" data-v="${v.id}" aria-pressed="${v.id === selV}">${v.n}</button>`).join('');
+    const v = VENT.find(x => x.id === selV);
+    $('#vdetail').innerHTML = `<span class="eyebrow">Same news: a network upgrade makes transfers cheaper and faster</span>
+      <h3>${v.n}</h3><p class="quote">${v.line}</p>
+      <p>${inZone(v) ? pill('good', 'Inside the range') : pill('warn', 'Drifting')}</p><p>${v.fix}</p>`;
+  }
+
+  const PIPE = [
+    ['Draft', 'agency', 'AI or a partner writes a first version from the approved brief.'],
+    ['Check claims', 'coord', 'Every fact and figure traced to a source document.'],
+    ['Check voice', 'coord', 'Three-point voice checklist against the guide.'],
+    ['Approve', 'head', 'A named person signs off. No sign-off, no publish.'],
+    ['Publish', 'coord', 'Scheduled and tagged so results can be tracked.'],
+    ['Measure', 'fin', 'Result read against the target in the monthly review.']
+  ];
+  const CHECKS = [
+    'Every claim links to a source document',
+    'Voice checklist passed',
+    'No price, yield or return promises',
+    'A named person approved it',
+    'AI assistance is recorded in the brief'
+  ];
+  const USES = [
+    { t: 'Repurpose long-form into threads, newsletters and FAQs', ai: 'Drafts variants from the approved article.', human: 'Picks the best variants and edits them.', check: 'Every claim traced back to the source article.', never: 'Inventing statistics or quotes.' },
+    { t: 'Community FAQ and support replies', ai: 'Drafts answers from approved documentation.', human: 'Moderators review before anything is posted.', check: 'Each answer cites the document it came from.', never: 'Answering security incidents, wallet recovery or price questions.' },
+    { t: 'Weekly report summary', ai: 'Summarises what changed in the dashboard.', human: 'The Head adds the so-what and the decision needed.', check: 'Numbers reconciled to the source before sending.', never: 'Sending figures nobody has reconciled.' },
+    { t: 'Multilingual announcements', ai: 'Produces a first-pass translation.', human: 'A native-speaking reviewer edits it.', check: 'Back-translation spot check on the key sentences.', never: 'Publishing legal or financial terms without review.' },
+    { t: 'Listening and competitor monitoring', ai: 'Clusters mentions by topic and sentiment.', human: 'Judges which clusters matter.', check: 'Sample twenty clusters each week for accuracy.', never: 'Replying automatically from the brand account.' },
+    { t: 'Partner brief drafting', ai: 'Builds a first draft from the launch template.', human: 'The Head rewrites the message and proof points.', check: 'Brief matches the one-page launch brief.', never: 'Sending a brief the Head has not read.' }
+  ];
+  function renderAI() {
+    $('#pipeline').innerHTML = PIPE.map((p, i) => `<div class="fstep"><span class="i">Step ${i + 1}</span><b>${p[0]}</b>${chip(p[1])}<span>${p[2]}</span></div>`).join('');
+    $('#checklist').innerHTML = CHECKS.map((c, i) => `<label for="chk-${i}"><input type="checkbox" id="chk-${i}"><span>${c}</span></label>`).join('');
+    $('#usecases').innerHTML = USES.map((u, i) => `<details${i === 0 ? ' open' : ''}><summary>${u.t}</summary><dl><dt>AI does</dt><dd>${u.ai}</dd><dt>Person does</dt><dd>${u.human}</dd><dt>Quality check</dt><dd>${u.check}</dd><dt>Never</dt><dd>${u.never}</dd></dl></details>`).join('');
+    $$('#checklist input').forEach(el => el.addEventListener('change', updateCheck));
+    updateCheck();
+  }
+  function updateCheck() {
+    const n = $$('#checklist input').filter(el => el.checked).length;
+    $('#check-status').innerHTML = n === CHECKS.length ? pill('good', 'Ready for approval') : (n >= 3 ? pill('warn', `${n} of ${CHECKS.length} done. Not ready`) : pill('crit', `${n} of ${CHECKS.length} done. Not ready`));
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-p],[data-mv],[data-s],[data-m],[data-ph],[data-v],.tabs a');
+    if (!t) return;
+    if (t.matches('.tabs a')) {
+      e.preventDefault();
+      const id = t.getAttribute('href').slice(1);
+      try { location.hash = id; } catch (_) { /* hash may be locked in some frames */ }
+      showView(id);
+      return;
+    }
+    if (t.dataset.p) { selP = t.dataset.p; renderRoster(); const b = $(`[data-p="${selP}"]`); if (b) b.focus(); }
+    else if (t.dataset.mv) moveCard(t.dataset.mv);
+    else if (t.dataset.s) { scen = t.dataset.s; F = Object.assign({}, BASE, SCEN[scen].set); updateFunnel(); }
+    else if (t.dataset.m) { model = t.dataset.m; renderAttr(); const b = $(`[data-m="${model}"]`); if (b) b.focus(); }
+    else if (t.dataset.ph) { ph = +t.dataset.ph; renderLaunch(); const b = $(`[data-ph="${ph}"]`); if (b) b.focus(); }
+    else if (t.dataset.v) { selV = t.dataset.v; renderVoice(); const b = $(`#vbtns [data-v="${selV}"]`); if (b) b.focus(); }
+  });
+  document.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('g[data-v]')) {
+      e.preventDefault(); selV = e.target.dataset.v; renderVoice();
+    }
+  });
+
+  /* ---------- start ---------- */
+  renderRoster(); renderBoard();
+  buildFunnelControls(); updateFunnel(); renderAttr();
+  renderChannels(); renderCohort();
+  renderLaunch(); renderVoice(); renderAI();
+  fromHash();
+})();
+</script>
+
+</body></html>

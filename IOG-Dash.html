@@ -1,0 +1,1475 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>IOG-Dash</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: portfolio first, then one shared calendar. Every fact carries a tag: Public, Inference or Illustrative. */
+:root{
+  --bg:#EDF0F3; --surface:#FFFFFF; --surface-2:#E3E8EE; --line:#CBD3DC;
+  --fg:#14202E; --muted:#4F5F72; --accent:#0A6C86; --accent-ink:#FFFFFF; --accent-soft:#D5EAF0;
+  --c-head:#0A6C86; --c-coord:#A15F00; --c-agency:#6B4AA5; --c-exec:#43546A;
+  --good:#1D7A4B; --warn:#B26A00; --crit:#B3342B; --info:#43546A;
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E151E; --surface:#16202C; --surface-2:#1E2B3A; --line:#2D3C4E;
+    --fg:#E7EDF3; --muted:#9AAABD; --accent:#4FC3DD; --accent-ink:#06222B; --accent-soft:#16333C;
+    --c-head:#4FC3DD; --c-coord:#E3A545; --c-agency:#B7A0EA; --c-exec:#9DB0C8;
+    --good:#4CC38A; --warn:#E3A545; --crit:#F0746B; --info:#9DB0C8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E151E; --surface:#16202C; --surface-2:#1E2B3A; --line:#2D3C4E;
+  --fg:#E7EDF3; --muted:#9AAABD; --accent:#4FC3DD; --accent-ink:#06222B; --accent-soft:#16333C;
+  --c-head:#4FC3DD; --c-coord:#E3A545; --c-agency:#B7A0EA; --c-exec:#9DB0C8;
+  --good:#4CC38A; --warn:#E3A545; --crit:#F0746B; --info:#9DB0C8; color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-block:20px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1180px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,4.5vw,2.9rem);letter-spacing:-.02em}
+h2{font-size:1.5rem;letter-spacing:-.01em}
+h3{font-size:1.05rem}
+p{margin:0}
+ul{margin:0;padding-left:1.1em}
+li+li{margin-top:4px}
+button,input{font:inherit;color:inherit}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.eyebrow{font:500 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.src{font:400 11.5px var(--f-mono);color:var(--muted)}
+.mast{display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;padding-bottom:16px}
+.mast>div{min-width:0;max-width:780px;display:flex;flex-direction:column;gap:10px}
+.lede{color:var(--muted);max-width:68ch}
+.stamp{font:500 12px var(--f-mono);border:1px dashed var(--muted);padding:4px 10px;border-radius:4px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;font-size:13px;color:var(--muted);padding-bottom:14px}
+.legend span.k{display:inline-flex;gap:8px;align-items:center}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);display:flex;gap:4px;overflow-x:auto;
+  border-bottom:1px solid var(--line);margin-bottom:28px;scrollbar-width:thin}
+.tabs a{flex:none;padding:12px 14px;text-decoration:none;color:var(--muted);font-weight:500;border-bottom:3px solid transparent}
+.tabs a:hover{color:var(--fg)}
+.tabs a[aria-current="page"]{color:var(--fg);border-bottom-color:var(--accent)}
+
+.view{display:flex;flex-direction:column;gap:40px}
+.view>*{min-width:0}
+.sec{display:flex;flex-direction:column;gap:14px;min-width:0}
+.sec-head{display:flex;flex-direction:column;gap:4px}
+.sec-head p{color:var(--muted);max-width:72ch}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+.grid.w3{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.grid>*{min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;min-width:0}
+.stack{display:flex;flex-direction:column;gap:10px;min-width:0}
+.phase{display:flex;flex-direction:column;gap:8px;border-top:2px solid var(--accent);padding-top:10px}
+.phase ul{color:var(--muted);font-size:14px}
+
+.chip{display:inline-flex;align-items:center;gap:6px;font:500 12px var(--f-body);padding:2px 9px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2);white-space:nowrap}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,var(--muted))}
+.o-head{--c:var(--c-head)} .o-coord{--c:var(--c-coord)} .o-agency{--c:var(--c-agency)}
+.o-exec,.o-coo,.o-legal{--c:var(--c-exec)}
+.own-io{--c:var(--c-head)} .own-fd{--c:var(--c-agency)} .own-co{--c:var(--c-coord)}
+.pill{display:inline-flex;align-items:center;gap:6px;font:500 12px var(--f-body);padding:2px 9px;border-radius:999px;color:var(--fg);white-space:nowrap;
+  background:color-mix(in srgb,var(--s) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--s) 50%,var(--surface))}
+.pill::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--s)}
+.good{--s:var(--good)} .warn{--s:var(--warn)} .crit{--s:var(--crit)} .info{--s:var(--info)}
+
+.btn{font:500 13px var(--f-body);padding:7px 12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:6px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+
+.facts{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:9px}
+.facts li{margin:0;font-size:14px}
+.facts .src{display:block}
+.parent{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.parent>*{min-width:0}
+.vtiles{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,168px),1fr))}
+.vt{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:7px;cursor:pointer;min-width:0}
+.vt b{font:700 1.05rem var(--f-display)}
+.vt small{color:var(--muted);font-size:12.5px;line-height:1.35}
+.vt:hover{border-color:var(--accent)}
+.vt[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+.vt .meta{display:flex;flex-wrap:wrap;gap:5px}
+.dhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:16px}
+.dhead>div{min-width:0}
+.dpills{display:flex;gap:6px;flex-wrap:wrap}
+.dgrid{display:grid;gap:26px;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.dgrid>*{min-width:0}
+dl{display:grid;grid-template-columns:104px 1fr;gap:10px 14px;margin:0;font-size:14px}
+dt{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+dd{margin:0;min-width:0}
+dd .pill{margin-left:6px;vertical-align:1px;font-size:11px;padding:0 7px}
+
+.lock td:first-child{font-weight:600;white-space:nowrap}
+.lock td:last-child{font-family:var(--f-mono);font-size:13.5px}
+.opmodel{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.opmodel>*{min-width:0}
+.svc{display:flex;flex-wrap:wrap;gap:6px}
+
+.tl{border-collapse:separate;border-spacing:0;min-width:1020px;table-layout:fixed}
+.tl th,.tl td{text-align:center;border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:6px 2px}
+.tl th{white-space:normal;vertical-align:bottom}
+.tl th small{display:block;font-weight:400;opacity:.8;text-transform:none;letter-spacing:0}
+.tl .rowh{text-align:left;position:sticky;left:0;background:var(--surface);z-index:1;width:104px;padding-left:10px;font:600 13px var(--f-body);text-transform:none;letter-spacing:0;color:var(--fg)}
+.tl thead .rowh{font:500 11px var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.tl td{height:46px;vertical-align:middle}
+.tl .now{background:var(--accent-soft)}
+.cw{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;align-items:center}
+.ev{width:16px;height:16px;border-radius:50%;border:2px solid var(--accent);background:var(--accent);padding:0;cursor:pointer}
+.ev.promised{background:var(--surface);border-color:var(--warn)}
+.ev.planned{background:var(--surface);border:2px dashed var(--c-exec)}
+.ev[aria-pressed="true"]{outline:2px solid var(--fg);outline-offset:2px}
+.sc{width:13px;height:13px;transform:rotate(45deg);border:2px solid var(--crit);background:var(--surface);display:inline-block}
+.keyrow{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);align-items:center}
+.keyrow span{display:inline-flex;gap:6px;align-items:center}
+.keyrow .ev,.keyrow .sc{cursor:default}
+
+.sc-grid{display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.sc-grid>*{min-width:0}
+.scdate{font:700 1.5rem var(--f-display)}
+input[type=range]{width:100%;accent-color:var(--accent);margin:0}
+.flags{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.flags li{display:flex;gap:10px;align-items:flex-start;margin:0;font-size:14px}
+.flags .pill{flex:none}
+.gates{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+.gates li{margin:0;display:flex;justify-content:space-between;gap:8px 14px;flex-wrap:wrap;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.gates .t{flex:1 1 220px;min-width:0;font-size:14px}
+.gates .who{display:flex;gap:5px;flex-wrap:wrap}
+.gate{font:500 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--warn);padding:1px 6px;border-radius:3px;margin-right:6px}
+details{border-top:1px solid var(--line);padding:12px 0}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;font-weight:600}
+
+.ladder{display:flex;flex-direction:column;gap:10px}
+.rung{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+@media (min-width:760px){.rung{margin-left:calc(var(--i) * 18px)}}
+.rung.hl{background:var(--accent-soft);border-color:var(--accent)}
+.rhead{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.rm{font:700 1.15rem var(--f-display)}
+.rbridge{font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.chip.lead{--c:var(--accent);background:var(--accent-soft);border-color:var(--accent)}
+.field{display:flex;flex-direction:column;gap:2px}
+.field .row{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.field output{font:500 13px var(--f-mono)}
+.bar{height:10px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent)}
+.cbar{display:grid;grid-template-columns:150px 1fr 72px;gap:10px;align-items:center;font-size:13px}
+.cbar .num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.bars{display:flex;flex-direction:column;gap:12px}
+.bv{white-space:nowrap}
+.vrow{display:grid;grid-template-columns:72px 1fr 72px;gap:12px;align-items:center;font-size:12px;color:var(--muted)}
+.vrow span:last-child{text-align:right}
+.vtrack{position:relative;height:6px;background:var(--surface-2);border-radius:3px}
+.vtrack i{position:absolute;top:-5px;width:16px;height:16px;border-radius:50%;background:var(--accent);transform:translateX(-50%);border:2px solid var(--surface)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+.say li{margin:4px 0}
+.lanes-w{overflow-x:auto}
+.lanes{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:10px;min-width:0}
+.lane{background:var(--surface-2);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:8px;min-height:110px;min-width:0}
+.lane h4{margin:0;font:600 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between}
+.card{text-align:left;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font:inherit;font-size:13px;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-width:0}
+.card[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.card .src{font-size:11px}
+.raci td,.raci th{text-align:center}.raci td:first-child,.raci th:first-child{text-align:left}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi b{font:700 1.35rem var(--f-display);font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--muted)}
+.kpi.good{border-color:var(--good)}.kpi.crit{border-color:var(--crit)}.kpi.warn{border-color:var(--warn)}
+.fcols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:20px}
+@media (max-width:760px){.fcols{grid-template-columns:minmax(0,1fr)}}
+.fbar{display:grid;grid-template-columns:minmax(110px,190px) 1fr 84px;gap:10px;align-items:center;font-size:13px}
+.fbar .num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+@media (max-width:520px){.fbar{grid-template-columns:1fr 84px}.fbar .bar{grid-column:1/-1;order:3}}
+.brow{display:grid;grid-template-columns:minmax(120px,200px) 1fr 210px;gap:10px;align-items:center;font-size:14px}
+.btrack{position:relative;height:16px;background:var(--surface-2);border-radius:2px}
+.btrack i{display:block;height:100%;background:var(--accent);border-radius:2px 0 0 2px}
+.btrack.fail i{background:var(--warn)}
+.btrack::after{content:"";position:absolute;left:67%;top:-4px;bottom:-4px;width:2px;background:var(--fg)}
+.bv{display:flex;gap:8px;align-items:center;font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums}
+.axis{position:relative;height:14px;font:11px var(--f-mono);color:var(--muted)}
+.axis span{position:absolute;top:0;white-space:nowrap}
+
+@media (max-width:520px){
+  dl{grid-template-columns:1fr;gap:2px 0}
+  dt{padding-top:8px}
+  .brow{grid-template-columns:1fr auto}
+  .brow .btrack{grid-column:1/-1;order:3}
+  .brow.head{display:none}
+  .cbar{grid-template-columns:104px 1fr 62px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div>
+      <p class="eyebrow">Head of Marketing, reporting to the COO</p>
+      <h1>IOG-Dash</h1>
+      <p class="lede">How one marketing lead could run the Input Output (IO) portfolio as a single system: Midnight, Lace, Pogun and RealFi, alongside the community-owned Cardano chain. Built from public sources dated November 5, 2026. IO has not reviewed it.</p>
+    </div>
+    <span class="stamp">Draft</span>
+  </header>
+
+  <div class="legend" aria-label="How to read the tags">
+    <span class="k"><span class="pill good">Public</span> Sourced and dated</span>
+    <span class="k"><span class="pill warn">Inference</span> My reading, to be tested</span>
+    <span class="k"><span class="pill info">Illustrative</span> Example rule or number, not IO data</span>
+  </div>
+
+  <nav class="tabs" aria-label="Dashboard sections">
+    <a href="#portfolio">Portfolio map</a>
+    <a href="#calendar">Launch calendar</a>
+    <a href="#kpi-ladder">KPI ladder</a>
+    <a href="#funnel-cac">Funnel and CAC</a>
+    <a href="#community">Community and governance</a>
+    <a href="#agency-board">Agency board</a>
+    <a href="#voice-ai">Voice and AI</a>
+  </nav>
+
+  <main>
+    <!-- PORTFOLIO -->
+    <section class="view" id="v-portfolio">
+      <div class="sec">
+        <div class="sec-head">
+          <h2>One parent, four ventures, one chain IO does not own</h2>
+          <p>Select a venture. Each has a different audience, owner and constraint, which is why one plan cannot fit all of them and why the role is about orchestration.</p>
+        </div>
+        <div class="panel parent">
+          <div class="stack">
+            <span class="eyebrow">Parent</span>
+            <h3>Input Output (IO)</h3>
+            <p>A venture studio that incubates products and spins them out. Marketing here means serving several audiences at once, under one set of standards.</p>
+          </div>
+          <ul class="facts" id="parent-facts"></ul>
+        </div>
+        <div class="vtiles" id="vtiles" role="group" aria-label="Ventures"></div>
+        <div class="panel" id="vdetail"></div>
+        <p class="src">Also listed by IO: Catalyst, Identus and Blockfrost. Integra and Overmind are internal AI tools. Not profiled here.</p>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Brand architecture: pick a model</h2>
+          <p>IO has changed names more than once, and its ventures reach different people. Compare three ways to show the IO name next to each venture.</p>
+        </div>
+        <div class="seg" id="bm-btns" role="group" aria-label="Brand model"></div>
+        <div class="panel" id="bm-body"></div>
+        <div class="grid w3">
+          <div class="phase">
+            <span class="eyebrow">Public</span>
+            <h3>The name has moved</h3>
+            <p>IOHK became IOG, then Input Output Group, then Input Output (IO) on December 5, 2025.</p>
+            <span class="src">DailyCoin; IO press release, Dec 5, 2025</span>
+          </div>
+          <div class="phase">
+            <span class="eyebrow">Public</span>
+            <h3>No longer Cardano first</h3>
+            <p>On September 18, 2026, Hoskinson said IO would pick the best network for each product.</p>
+            <span class="src">CryptoSlate, Sept 20, 2026</span>
+          </div>
+          <div class="phase">
+            <span class="eyebrow">Inference, to test in the first 30 days</span>
+            <h3>Start with endorsed brands</h3>
+            <p>Ventures lead with their own names for users and developers. The IO name leads for partners, regulators, investors and hires. Audience research then confirms or changes the rule.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Where the role sits</h2>
+          <p>The advertised COO role describes business units with more autonomy, supported by shared enterprise infrastructure, and a culture that asks why KPIs are missed. Marketing fits that model as shared infrastructure.</p>
+          <span class="src">COO job ad, web3.career, Jul 3, 2026 (paraphrased)</span>
+        </div>
+        <div class="opmodel">
+          <div class="panel stack">
+            <span class="chip o-coo">COO</span>
+            <h3>Sets the KPIs and standards</h3>
+            <p>One reporting rhythm, one budget view, one approval path for claims.</p>
+            <span class="pill warn">Inference</span>
+          </div>
+          <div class="panel stack">
+            <span class="chip own-io">Ventures</span>
+            <h3>Own their customers</h3>
+            <p>Each venture owns its audience, its roadmap and its lead metric.</p>
+            <span class="pill warn">Inference</span>
+          </div>
+          <div class="panel stack">
+            <span class="chip o-head">Head of Marketing</span>
+            <h3>Runs the shared layer</h3>
+            <div class="svc"><span class="chip">Brand</span><span class="chip">Content</span><span class="chip">Community</span><span class="chip">Developer marketing</span><span class="chip">Partners and events</span><span class="chip">PR</span><span class="chip">Analytics</span><span class="chip">AI tooling</span></div>
+            <span class="pill warn">Inference</span>
+          </div>
+        </div>
+        <p>In practice: one calendar, one set of launch gates, one monthly report. The next view shows the calendar and the gates working on a real upcoming launch.</p>
+      </div>
+    </section>
+
+    <!-- CALENDAR -->
+    <section class="view" id="v-calendar" hidden>
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Portfolio calendar, December 2025 to March 2027</h2>
+          <p>Every dot is a public event with a source. Select one to read it. The shaded column is the current month.</p>
+        </div>
+        <div class="keyrow">
+          <span><i class="ev" style="width:14px;height:14px"></i> Happened</span>
+          <span><i class="ev promised" style="width:14px;height:14px"></i> Publicly promised</span>
+          <span><i class="ev planned" style="width:14px;height:14px"></i> Planned, no date</span>
+          <span><i class="sc"></i> What-if date from the planner below</span>
+        </div>
+        <div class="panel tbl" id="grid-wrap"></div>
+        <div class="panel" id="ev-detail" aria-live="polite"></div>
+        <p id="busiest"></p>
+        <details>
+          <summary>All events with sources</summary>
+          <div class="tbl"><table>
+            <thead><tr><th>Date</th><th>Where</th><th>What</th><th>Status</th><th>Source</th></tr></thead>
+            <tbody id="ev-table"></tbody>
+          </table></div>
+        </details>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>What-if: plan the Pogun launch</h2>
+          <p>Pogun is the next publicly promised launch. Move the date and see what collides and which preparation steps would already be late. Lead times are examples, not IO data.</p>
+        </div>
+        <div class="panel sc-grid">
+          <div class="stack">
+            <label for="sc-range" class="eyebrow">Launch date</label>
+            <div class="scdate" id="sc-date"></div>
+            <input id="sc-range" type="range" min="0" max="102" step="1" value="31">
+            <span class="src">Range: Nov 16, 2026 to Feb 26, 2027. Public promise: within 90 days of Sept 18, 2026, about Dec 17. Host chain not confirmed (CryptoSlate and Cryptonews, Sept 20 and 21, 2026).</span>
+            <div><span id="sc-overall"></span></div>
+            <ul class="flags" id="sc-flags"></ul>
+          </div>
+          <div class="stack">
+            <span class="eyebrow">Preparation steps, latest start date</span>
+            <ul class="gates" id="sc-gates"></ul>
+            <span class="pill info">Illustrative lead times</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>Calendar rules</h2><p>Four rules that keep several launches from landing on the same audience.</p></div>
+        <div class="grid">
+          <div class="phase"><h3>One calendar</h3><p>Every venture announcement goes on a shared calendar before any asset is briefed.</p></div>
+          <div class="phase"><h3>Five working days apart</h3><p>No two venture announcements within five working days on channels they share.</p></div>
+          <div class="phase"><h3>Holiday quiet period</h3><p>No launches from December 21 to January 2.</p></div>
+          <div class="phase"><h3>Same gates every time</h3><p>Claims, regions and chain checks run before any launch, whichever venture it is.</p></div>
+        </div>
+        <span class="pill info" style="align-self:flex-start">Illustrative rules</span>
+      </div>
+    </section>
+
+    <!-- KPI LADDER -->
+    <section class="view" id="v-kpi-ladder" hidden>
+      <div class="sec">
+        <div class="sec-head">
+          <h2>KPI ladder: from the COO's question to what a community member would recognize</h2>
+          <p>The advertised COO role asks why KPIs are missed. This ladder gives every venture the same five rungs, so the monthly review compares like with like and every number traces down to people doing real things.</p>
+          <span class="src">COO job ad, web3.career, Jul 3, 2026 (paraphrased)</span>
+        </div>
+        <div class="seg" id="lv-btns" role="group" aria-label="Venture"></div>
+        <div class="seg" id="lm-btns" role="group" aria-label="Reading order"></div>
+        <div class="ladder" id="ladder"></div>
+        <div class="stack"><span class="pill info" style="align-self:flex-start">Illustrative</span><span class="src">Every metric here is a proposal for what to measure, with baselines to be set in the first 30 days. No IO figures are implied.</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Growth that holds</h2>
+          <p>The community rung is made of four signals. Each counts people who did something, not people who showed up once. Together they replace the follower count as the number marketing leads with.</p>
+        </div>
+        <div class="grid">
+          <div class="phase"><span class="eyebrow">Contribute</span><h3>Weekly active contributors</h3><p>Members who posted, replied, voted, filed an issue or shipped something this week.</p></div>
+          <div class="phase"><span class="eyebrow">Help</span><h3>Member-answered share</h3><p>Questions answered by another member, not staff, within 24 hours.</p></div>
+          <div class="phase"><span class="eyebrow">Trust</span><h3>Support around decisions</h3><p>Sentiment before a vote or a release, then the same measure afterward.</p></div>
+          <div class="phase"><span class="eyebrow">Stay</span><h3>Week-8 retention</h3><p>Share of each month's new members still active eight weeks later, tracked by cohort.</p></div>
+        </div>
+        <span class="pill info" style="align-self:flex-start">Illustrative definitions</span>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Headline numbers and the question behind each</h2>
+          <p>The public record already contains numbers that sound large. Each one has a better question next to it. The first two columns are public. The last two are my reading.</p>
+        </div>
+        <div class="panel tbl">
+          <table>
+            <thead><tr><th>Public headline</th><th>Source</th><th>The question behind it</th><th>Report instead</th></tr></thead>
+            <tbody>
+              <tr><td>The Midnight Discord lists about 52,600 members.</td><td class="src">Discord server directory, Nov 2026</td><td>How many were active in the last 28 days, and how many posted?</td><td>28-day active rate and weekly contributors</td></tr>
+              <tr><td>RealFi's testnet drew 3,600+ participants and 40,000+ actions, roughly 11 actions each on those round numbers.</td><td class="src">24/7 Wall St., Oct 3, 2026; CoinCentral</td><td>How many came back on a second day, and how many then deposited on mainnet?</td><td>Testnet-to-mainnet depositor rate</td></tr>
+              <tr><td>Cardano recorded 1.78 million transactions in one epoch, Oct 7 to 11, 2026.</td><td class="src">The Crypto Basic, Oct 27, 2026</td><td>How many distinct addresses and how many repeat users produced them?</td><td>Distinct active addresses and repeat-user rate</td></tr>
+              <tr><td>The Pogun proposal lists 14 committed ecosystem partners.</td><td class="src">Pogun proposal; IO blog, May 20, 2026</td><td>How many are integrated and live at launch?</td><td>Integrations live per committed partner</td></tr>
+              <tr><td>I found no current Lace user count.</td><td class="src">Not found, Nov 5, 2026</td><td>What is the monthly active wallet count, and how many wallets are still active at week 8?</td><td>Monthly active wallets and week-8 retention</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Same server, two reports</h2>
+          <p>Move the two sliders. The headline stays fixed at the public figure. The picture underneath changes.</p>
+        </div>
+        <div class="panel sc-grid">
+          <div class="stack">
+            <span class="eyebrow">Midnight Discord headline: 52,592 members</span>
+            <span class="src">Discord server directory, Nov 2026</span>
+            <div class="field"><div class="row"><label for="cv-a">Share of members active in the last 28 days</label><output id="cv-a-o" for="cv-a"></output></div><input id="cv-a" type="range" min="5" max="60" step="1" value="25"></div>
+            <div class="field"><div class="row"><label for="cv-b">Share of active members who posted or replied</label><output id="cv-b-o" for="cv-b"></output></div><input id="cv-b" type="range" min="5" max="50" step="1" value="20"></div>
+            <div><span class="pill info">Illustrative percentages</span></div>
+            <span class="src">The two percentages are placeholders. IO's real figures need the Foundation's data.</span>
+          </div>
+          <div class="stack" id="cv-out"></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Trust you can already see</h2>
+          <p id="bars-lede"></p>
+        </div>
+        <div class="panel stack">
+          <div class="bars" id="bars"></div>
+          <span class="src">The vertical line marks the 67% approval threshold. Figures are as each source reports them, mostly the share of delegate voting power in favor. Methods may differ slightly, so compare the order, not the decimals.</span>
+          <ul class="facts" id="bars-src"></ul>
+        </div>
+        <p id="bars-take"></p>
+      </div>
+    </section>
+
+    <!-- FUNNEL AND CAC -->
+    <section class="view" id="v-funnel-cac" hidden>
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Funnel, CAC, LTV and retention</h2>
+          <p>Pick a venture and move the sliders. The calculator contrasts the cheap-looking headline cost with the cost of a person who stays, then shows how many of those people become contributors. That last step is where the funnel meets the community.</p>
+        </div>
+        <div class="seg" id="fn-btns" role="group" aria-label="Venture"></div>
+        <div class="stack"><span class="pill info" style="align-self:flex-start">Illustrative</span><span class="src">Every starting value is a placeholder, not an IO budget or result. They start below the 3 to 1 target on purpose, so the sliders have something to show. Set real baselines in the first 30 days.</span></div>
+        <div class="panel fcols">
+          <div class="stack">
+            <span class="eyebrow">Inputs</span>
+            <div class="field"><div class="row"><label for="fn-spend">Monthly program spend</label><output id="fn-spend-o" for="fn-spend"></output></div><input id="fn-spend" type="range" min="10000" max="500000" step="5000"></div>
+            <div class="field"><div class="row"><label for="fn-cpv">Cost per qualified visit</label><output id="fn-cpv-o" for="fn-cpv"></output></div><input id="fn-cpv" type="range" min="0.5" max="20" step="0.5"></div>
+            <div class="field"><div class="row"><label for="fn-c1" id="fn-c1-l"></label><output id="fn-c1-o" for="fn-c1"></output></div><input id="fn-c1" type="range" min="1" max="30" step="1"></div>
+            <div class="field"><div class="row"><label for="fn-c2" id="fn-c2-l"></label><output id="fn-c2-o" for="fn-c2"></output></div><input id="fn-c2" type="range" min="5" max="70" step="1"></div>
+            <div class="field"><div class="row"><label for="fn-c3" id="fn-c3-l"></label><output id="fn-c3-o" for="fn-c3"></output></div><input id="fn-c3" type="range" min="1" max="30" step="1"></div>
+            <div class="field"><div class="row"><label for="fn-val" id="fn-val-l"></label><output id="fn-val-o" for="fn-val"></output></div><input id="fn-val" type="range" min="0" max="50" step="1"></div>
+            <div class="field"><div class="row"><label for="fn-mo">Months a retained user stays active</label><output id="fn-mo-o" for="fn-mo"></output></div><input id="fn-mo" type="range" min="3" max="36" step="1"></div>
+            <span class="src" id="fn-note"></span>
+          </div>
+          <div class="stack">
+            <span class="eyebrow">The funnel for one month (bars use a log scale)</span>
+            <div class="stack" id="fn-stages"></div>
+            <div class="kpis" id="fn-kpis"></div>
+            <p id="fn-read"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Retention by cohort</h2>
+          <p>One month's first-time users, followed forward. The curve assumes steady decay from the checkpoint you set above. Averaging old and new users together would hide this drop.</p>
+        </div>
+        <div class="panel stack"><div class="stack" id="fn-ret"></div><span class="src" id="fn-ret-note"></span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>What this view leaves out on purpose</h2>
+        </div>
+        <ul class="facts">
+          <li>Incentive spend: <span class="src">Airdrops, grants and rewards belong inside the monthly spend, so a campaign that buys sign-ups shows up as expensive per retained user.</span></li>
+          <li>Revenue: <span class="src">Cardano has no revenue per user, and Midnight's value is a proxy. Where the value slider reads zero or a proxy, treat LTV as a planning aid, not a financial claim.</span></li>
+          <li>Next step: <span class="src">The contributor line above feeds the community rung of the <a href="#kpi-ladder">KPI ladder</a>. The community and governance view will build on it.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- COMMUNITY AND GOVERNANCE -->
+    <section class="view" id="v-community" hidden>
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Community that grows without hype</h2>
+          <p>The ladder ends in community health, and the funnel ends in contributors. This view shows how marketing would run that layer week to week, and how it would prepare the one community moment with a public deadline: the governance vote.</p>
+        </div>
+        <div class="grid">
+          <div class="phase"><span class="eyebrow">Principle 1</span><h3>Count people who did something</h3><p>A member counts when they post, reply, vote or ship. Joining does not count.</p></div>
+          <div class="phase"><span class="eyebrow">Principle 2</span><h3>Reward contribution, not attention</h3><p>Pay for answers, tutorials and bug reports. Do not pay for follows.</p></div>
+          <div class="phase"><span class="eyebrow">Principle 3</span><h3>Say less and prove more</h3><p>Talk about what shipped. Use reviewed wording wherever a claim touches money.</p></div>
+          <div class="phase"><span class="eyebrow">Principle 4</span><h3>Make decisions legible early</h3><p>Explain each proposal in plain language weeks before voting opens.</p></div>
+        </div>
+        <div><span class="pill info">Illustrative principles</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Hype versus hold</h2>
+          <p>Five common community moves, what each really buys, and what I would do instead. The last column is the number that tells you whether it worked.</p>
+        </div>
+        <div class="panel tbl">
+          <table>
+            <thead><tr><th>Common move</th><th>What it buys</th><th>Instead</th><th>How we would know</th></tr></thead>
+            <tbody>
+              <tr><td>Giveaways and airdrop campaigns</td><td>Sign-ups, many of whom leave after the reward</td><td>Reward answers, tutorials, bug reports and votes</td><td>Week-8 retention of rewarded members</td></tr>
+              <tr><td>Member and follower counts as the headline</td><td>A big number that says nothing about activity</td><td>Lead with weekly active contributors</td><td>Contributors per 1,000 members</td></tr>
+              <tr><td>Staff answer every question</td><td>Speed, but the community never learns to help itself</td><td>Recognize member helpers, keep staff for hard questions</td><td>Member-answered share within 24 hours</td></tr>
+              <tr><td>Price and token talk</td><td>Speculators, and risk around claims</td><td>Share what shipped and what is next, in reviewed wording</td><td>Share of posts using approved wording</td></tr>
+              <tr><td>Announce decisions when the vote opens</td><td>Surprise, and thinner support</td><td>Explain each proposal in plain language weeks before</td><td>Support before the vote versus after</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div><span class="pill warn">Inference</span> <span class="src">My reading of what tends to work, to be tested against IO's own baselines.</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>A weekly rhythm</h2>
+          <p>Five recurring moves that keep the four signals visible. Owners are roles, not named people.</p>
+        </div>
+        <div class="panel tbl">
+          <table>
+            <thead><tr><th>Day</th><th>Move</th><th>Owner</th></tr></thead>
+            <tbody>
+              <tr><td>Monday</td><td>Read the weekly scorecard: contributors, member-answered share, trust, week-8 retention.</td><td><span class="chip">Head of Marketing</span></td></tr>
+              <tr><td>Tuesday</td><td>Clear every question that has waited more than 24 hours.</td><td><span class="chip">Community leads</span></td></tr>
+              <tr><td>Wednesday</td><td>Thank and spotlight this week's most helpful members.</td><td><span class="chip">Community leads</span></td></tr>
+              <tr><td>Thursday</td><td>Sync with agencies. Flag any claim that needs review before it goes out.</td><td><span class="chip">Agencies and coordinator</span></td></tr>
+              <tr><td>Friday</td><td>Send a one-page summary to venture leads. The COO sees the monthly roll-up.</td><td><span class="chip">Head of Marketing</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div><span class="pill info">Illustrative</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Before the vote</h2>
+          <p>Delegate support is the one community number with a public record, and one 2026 proposal passed with 67.90% against a 67% threshold. Move the slider to see which steps should be under way.</p>
+          <span class="src">Developer experience result: AdaStat via Bitcoinist, May 26, 2026</span>
+        </div>
+        <div class="panel stack">
+          <div class="field"><div class="row"><label for="cm-d">Days until the vote opens</label><output id="cm-d-o" for="cm-d"></output></div><input id="cm-d" type="range" min="-10" max="30" step="1" value="12"></div>
+          <div class="tbl"><table><thead><tr><th>Step</th><th>When</th><th>Status</th></tr></thead><tbody id="cm-steps"></tbody></table></div>
+          <span class="pill info" style="align-self:flex-start">Illustrative schedule</span>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>How many undecided delegates must be won?</h2>
+          <p>A simplified model of why early work matters. Set current support and the share still undecided. The model says what share of the undecided must come over to reach 67%.</p>
+        </div>
+        <div class="panel sc-grid">
+          <div class="stack">
+            <div class="seg" id="cm-pre" role="group" aria-label="Start from a public result"></div>
+            <div class="field"><div class="row"><label for="cm-s">Support so far</label><output id="cm-s-o" for="cm-s"></output></div><input id="cm-s" type="range" min="20" max="90" step="0.5" value="55"></div>
+            <div class="field"><div class="row"><label for="cm-u">Still undecided</label><output id="cm-u-o" for="cm-u"></output></div><input id="cm-u" type="range" min="0" max="60" step="1" value="25"></div>
+            <span class="src">Simplified: ignores abstentions, quorum and how voting power is counted. Check the actual rules before relying on it.</span>
+          </div>
+          <div class="stack"><div class="kpis" id="cm-kpis"></div><p id="cm-read"></p></div>
+        </div>
+        <div><span class="pill info">Illustrative model</span> <span class="src">The two quick buttons use public results: Developer experience 67.90% and Pogun 35.67%. The undecided share is a placeholder.</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>If a signal dips</h2>
+          <p>One first response for each of the four signals. Thresholds are set once baselines exist.</p>
+        </div>
+        <div class="panel tbl">
+          <table>
+            <thead><tr><th>Signal</th><th>If it dips</th><th>First response</th></tr></thead>
+            <tbody>
+              <tr><td>Contribute</td><td>Fewer weekly active contributors</td><td>Ask the five most active members what is getting in their way</td></tr>
+              <tr><td>Help</td><td>Member-answered share falls</td><td>Recognize helpers publicly and write answers to the repeat questions</td></tr>
+              <tr><td>Trust</td><td>Support drops after an announcement</td><td>Publish the plain-language reasoning and hold an open Q&amp;A</td></tr>
+              <tr><td>Stay</td><td>Week-8 retention slips for a cohort</td><td>Review what that cohort saw first, and fix the first week</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div><span class="pill info">Illustrative</span> <span class="src">Next view: the agency and coordinator board, which decides who does each of these moves.</span></div>
+      </div>
+    </section>
+
+    <!-- AGENCY BOARD -->
+    <section class="view" id="v-agency-board" hidden>
+      <div class="sec">
+        <div class="sec-head">
+          <h2>One coordinator, many teams</h2>
+          <p>Marketing for four ventures and a chain will run through agencies, freelancers and contractors. This view shows how one coordinator keeps outside teams moving without turning internal review into the bottleneck, however large or small the internal team is.</p>
+        </div>
+        <div class="grid">
+          <div class="phase"><span class="eyebrow">Rule 1</span><h3>One intake, one calendar</h3><p>Every request enters one queue and lands on the shared launch calendar. No side channels.</p></div>
+          <div class="phase"><span class="eyebrow">Rule 2</span><h3>One accountable owner per item</h3><p>Many people contribute. Exactly one person is accountable for the decision.</p></div>
+          <div class="phase"><span class="eyebrow">Rule 3</span><h3>Review is the scarce resource</h3><p>Standard briefs and pre-approved wording cut the hours that internal reviewers spend per item.</p></div>
+          <div class="phase"><span class="eyebrow">Rule 4</span><h3>Outside teams report reach, never alone</h3><p>Reach always appears next to the rung above it on the <a href="#kpi-ladder">KPI ladder</a>.</p></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>The roster</h2>
+          <p>Eight kinds of outside or shared team, what each covers, who inside owns the relationship, and what each never decides.</p>
+        </div>
+        <div class="panel tbl">
+          <table>
+            <thead><tr><th>Team</th><th>Covers</th><th>Ventures</th><th>Internal counterpart</th><th>Never decides</th></tr></thead>
+            <tbody>
+              <tr><td>PR agency</td><td>Media relations and announcements</td><td>All, especially launches</td><td>Head of Marketing</td><td>Claims about yield or returns</td></tr>
+              <tr><td>Paid and performance agency</td><td>Paid media and landing tests</td><td>Lace, Pogun, RealFi</td><td>Venture lead</td><td>Targeting outside permitted regions</td></tr>
+              <tr><td>Creative and design studio</td><td>Brand assets and launch creative</td><td>Per venture</td><td>Head of Marketing</td><td>Brand architecture</td></tr>
+              <tr><td>Community contractors</td><td>Moderation, answers and weekly digests</td><td>Midnight, Cardano, Lace</td><td>Community lead</td><td>Policy on sensitive questions</td></tr>
+              <tr><td>Technical writers and developer educators</td><td>Tutorials, docs and proposal explainers</td><td>Midnight, Cardano</td><td>Venture lead</td><td>Technical accuracy</td></tr>
+              <tr><td>Events and field partners</td><td>Conferences and meetups</td><td>Midnight City, ecosystem</td><td>Head of Marketing</td><td>Speaking commitments</td></tr>
+              <tr><td>Analytics contractor</td><td>Funnel and cohort reporting</td><td>All</td><td>Head of Marketing</td><td>Which metrics count</td></tr>
+              <tr><td>Legal and compliance reviewer</td><td>Claim review before release</td><td>RealFi first</td><td>Legal and compliance</td><td>Marketing strategy</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div><span class="pill info">Illustrative</span> <span class="src">Team types only. No agencies or people are named, and IO's actual roster is unknown to me.</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>The work board</h2>
+          <p>Thirteen sample items moving through five lanes. Filter by venture or by who does the work, select a card, and move it forward. Watch the review lane: it is the internal team's lane.</p>
+        </div>
+        <div class="stack">
+          <div class="seg" id="bd-v" role="group" aria-label="Venture"></div>
+          <div class="seg" id="bd-t" role="group" aria-label="Who does the work"></div>
+        </div>
+        <div class="lanes-w"><div class="lanes" id="bd-lanes"></div></div>
+        <div class="panel stack" id="bd-detail"></div>
+        <div id="bd-wip"></div>
+        <div><span class="pill info">Illustrative</span> <span class="src">Sample work items, not IO's real pipeline.</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Who decides what</h2>
+          <p>Choose a kind of work. R does it, A is accountable, C is consulted, I is informed. Every row has exactly one A.</p>
+        </div>
+        <div class="seg" id="rc-btns" role="group" aria-label="Kind of work"></div>
+        <div class="panel tbl"><table class="raci"><thead id="rc-head"></thead><tbody id="rc-body"></tbody></table></div>
+        <p id="rc-note"></p>
+        <div><span class="pill info">Illustrative</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Can the internal team carry it?</h2>
+          <p>A simple load check. The defaults start over capacity on purpose. Turn on the three levers to see how much room each one gives back.</p>
+        </div>
+        <div class="panel fcols">
+          <div class="stack">
+            <div class="field"><div class="row"><label for="cp-teams">Active outside teams</label><output id="cp-teams-o" for="cp-teams"></output></div><input id="cp-teams" type="range" min="1" max="15" step="1" value="10"></div>
+            <div class="field"><div class="row"><label for="cp-briefs">Briefs and deliverables to review each month</label><output id="cp-briefs-o" for="cp-briefs"></output></div><input id="cp-briefs" type="range" min="4" max="80" step="2" value="40"></div>
+            <div class="field"><div class="row"><label for="cp-rev">Review hours per item</label><output id="cp-rev-o" for="cp-rev"></output></div><input id="cp-rev" type="range" min="0.5" max="6" step="0.5" value="2"></div>
+            <div class="field"><div class="row"><label for="cp-sync">Hours per team each month in calls and follow-up</label><output id="cp-sync-o" for="cp-sync"></output></div><input id="cp-sync" type="range" min="0.5" max="8" step="0.5" value="3"></div>
+            <div class="field"><div class="row"><label for="cp-people">Internal people who can review</label><output id="cp-people-o" for="cp-people"></output></div><input id="cp-people" type="range" min="1" max="8" step="1" value="2"></div>
+            <div class="field"><div class="row"><label for="cp-time">Share of their time for coordination and review</label><output id="cp-time-o" for="cp-time"></output></div><input id="cp-time" type="range" min="10" max="80" step="5" value="30"></div>
+            <span class="eyebrow">Levers</span>
+            <div class="seg" id="cp-lev" role="group" aria-label="Levers"></div>
+            <span class="src">Lever effects are placeholders: a standard brief cuts review time by 30%, pre-approved wording by 20% more, and one shared weekly sync cuts per-team call time by 60%.</span>
+          </div>
+          <div class="stack"><div class="kpis" id="cp-kpis"></div><p id="cp-read"></p><span class="pill info" style="align-self:flex-start">Illustrative model</span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Operating cadence</h2>
+        </div>
+        <div class="panel tbl">
+          <table>
+            <thead><tr><th>Rhythm</th><th>What happens</th><th>Who</th></tr></thead>
+            <tbody>
+              <tr><td>Daily</td><td>Triage the intake queue. Every request gets an owner, a lane and a date.</td><td><span class="chip">Head of Marketing</span></td></tr>
+              <tr><td>Weekly</td><td>One 30-minute sync with all outside teams, then the community scorecard.</td><td><span class="chip">All teams</span></td></tr>
+              <tr><td>Monthly</td><td>Roll the KPI ladder up to the COO, with reach shown next to the rung above it.</td><td><span class="chip">Head of Marketing</span></td></tr>
+              <tr><td>Quarterly</td><td>Review each team on on-time delivery, first-pass approval and cost per output.</td><td><span class="chip">Head of Marketing and venture leads</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div><span class="pill info">Illustrative</span></div>
+      </div>
+    </section>
+
+    <!-- VOICE AND AI -->
+    <section class="view" id="v-voice-ai" hidden>
+      <div class="sec">
+        <div class="sec-head">
+          <h2>One house, several voices</h2>
+          <p>Several ventures and a community-owned chain cannot all sound the same, and should not sound unrelated. Pick a venture to see where its voice sits on three dials, what it always does and what it never does.</p>
+        </div>
+        <div class="seg" id="vo-btns" role="group" aria-label="Venture voice"></div>
+        <div class="panel two">
+          <div class="stack" id="vo-dials"></div>
+          <div class="stack" id="vo-say"></div>
+        </div>
+        <div><span class="pill info">Illustrative</span> <span class="src">A starting proposal for each voice, to be tested with IO's teams. These are not IO's brand rules.</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Where AI helps and where a person decides</h2>
+          <p>Sort work by what a mistake would cost. Select a task to see what AI does, what a person checks and what gets logged.</p>
+        </div>
+        <div class="seg" id="ai-btns" role="group" aria-label="Task"></div>
+        <div class="panel stack" id="ai-detail"></div>
+        <div><span class="pill info">Illustrative</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>An AI-assisted workflow with a human at each gate</h2>
+          <p>Every draft passes the same eight steps. AI assists at a few of them, and a person owns every gate.</p>
+        </div>
+        <div class="panel tbl">
+          <table>
+            <thead><tr><th>Step</th><th>Who</th><th>Where AI helps</th></tr></thead>
+            <tbody>
+              <tr><td>1. Brief</td><td><span class="chip">Venture lead</span></td><td>Nowhere. The goal and the audience are human decisions.</td></tr>
+              <tr><td>2. Draft</td><td><span class="chip">Writer</span></td><td>Options, outlines and first versions.</td></tr>
+              <tr><td>3. Check facts</td><td><span class="chip">Editor</span></td><td>Finds the source for each claim. A person confirms it.</td></tr>
+              <tr><td>4. Check wording</td><td><span class="chip">Editor</span></td><td>Flags phrases that are not in the approved library.</td></tr>
+              <tr><td>5. Edit for voice</td><td><span class="chip">Writer</span></td><td>Suggestions only.</td></tr>
+              <tr><td>6. Review</td><td><span class="chip">Per tier above</span></td><td>None.</td></tr>
+              <tr><td>7. Publish</td><td><span class="chip">Coordinator</span></td><td>None.</td></tr>
+              <tr><td>8. Log</td><td><span class="chip">Coordinator</span></td><td>Records the prompt, the sources and the reviewer.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div><span class="pill info">Illustrative</span> <span class="src">The tags on this page follow the same rule: every number is marked Public, Inference or Illustrative.</span></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Does AI pay for itself?</h2>
+          <p>Time saved on drafting can be spent again on checking. Load a preset or move the sliders. The regulated-claims preset shows why that work stays human only.</p>
+        </div>
+        <div class="panel fcols">
+          <div class="stack">
+            <div class="seg" id="ac-pre" role="group" aria-label="Preset"></div>
+            <div class="field"><div class="row"><label for="ac-n">Items each month</label><output id="ac-n-o" for="ac-n"></output></div><input id="ac-n" type="range" min="10" max="200" step="5" value="60"></div>
+            <div class="field"><div class="row"><label for="ac-h">Hours to draft one item by hand</label><output id="ac-h-o" for="ac-h"></output></div><input id="ac-h" type="range" min="0.5" max="8" step="0.5" value="3"></div>
+            <div class="field"><div class="row"><label for="ac-s">Drafting time AI saves</label><output id="ac-s-o" for="ac-s"></output></div><input id="ac-s" type="range" min="0" max="90" step="5" value="60"></div>
+            <div class="field"><div class="row"><label for="ac-r">Drafts that need a rewrite</label><output id="ac-r-o" for="ac-r"></output></div><input id="ac-r" type="range" min="0" max="80" step="5" value="25"></div>
+            <div class="field"><div class="row"><label for="ac-c">Hours to check one item</label><output id="ac-c-o" for="ac-c"></output></div><input id="ac-c" type="range" min="0" max="4" step="0.25" value="0.5"></div>
+            <span class="src">A rewrite costs half the by-hand drafting time. Everything here is a placeholder.</span>
+          </div>
+          <div class="stack"><div class="kpis" id="ac-kpis"></div><p id="ac-read"></p><span class="pill info" style="align-self:flex-start">Illustrative model</span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Telling the AI story honestly</h2>
+          <p>IO has several AI efforts in public. The voice rule for all of them is the same: show it working, say what it is, and name what it is not yet.</p>
+        </div>
+        <div class="panel tbl">
+          <table>
+            <thead><tr><th>Public item</th><th>Evidence</th><th>Source</th><th>Voice rule</th></tr></thead>
+            <tbody>
+              <tr><td>Midnight City: a live simulation where autonomous AI agents live, work and transact. Public since Feb 26, 2026. Version 2 launched Jul 13, 2026.</td><td><span class="pill good">Public</span></td><td class="src">Midnight blog, Feb and Jul 2026</td><td>Show the agents deciding something, label it a demo, and say what it proves about privacy.</td></tr>
+              <tr><td>An AI and blockchain lab in Athens was announced.</td><td><span class="pill good">Public</span></td><td class="src">IO release, Apr 20, 2026</td><td>Say what it will research and when results will arrive. Make no capability claims until work ships.</td></tr>
+              <tr><td>Integra and Overmind are listed as internal AI tools.</td><td><span class="pill good">Public</span></td><td class="src">IO's own product listing, as found Nov 5, 2026</td><td>Treat them as internal until IO says otherwise, and ask what can be shown.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid">
+          <div class="phase"><span class="eyebrow">Rule 1</span><h3>Show, do not claim</h3><p>A working demo persuades more than a capability list.</p></div>
+          <div class="phase"><span class="eyebrow">Rule 2</span><h3>Label demo and product</h3><p>Readers should always know which one they are looking at.</p></div>
+          <div class="phase"><span class="eyebrow">Rule 3</span><h3>Name the limits</h3><p>Say what it cannot do yet. That is what makes the rest believable.</p></div>
+        </div>
+        <div><span class="pill info">Illustrative</span> <span class="src">The rules are my proposals. The evidence column is the public record.</span></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const OWN = { head: "Head of Marketing", coord: "Coordinator", agency: "Agency", exec: "Executive team", coo: "COO", legal: "Legal" };
+  const chip = o => `<span class="chip o-${o}">${OWN[o]}</span>`;
+  const pill = (s, t) => `<span class="pill ${s}">${t}</span>`;
+  const TAGS = { pub: ["good", "Public"], inf: ["warn", "Inference"], ill: ["info", "Illustrative"] };
+  const tag = k => (TAGS[k] ? pill(TAGS[k][0], TAGS[k][1]) : "");
+  const factList = a => a.map(([t, s]) => `<li>${t}<span class="src">${s}</span></li>`).join("");
+
+  /* ---------- dates ---------- */
+  const D = (y, m, d) => new Date(y, m - 1, d, 12);
+  const DAY = 864e5;
+  const diffDays = (a, b) => Math.round((a - b) / DAY);
+  const fmt = d => d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const fmtS = d => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const MN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const _t = new Date();
+  const TODAY = D(_t.getFullYear(), _t.getMonth() + 1, _t.getDate());
+
+  /* ---------- routing ---------- */
+  const VIEWS = ["portfolio", "calendar", "kpi-ladder", "funnel-cac", "community", "agency-board", "voice-ai"];
+  function showView(id) {
+    if (!VIEWS.includes(id)) id = "portfolio";
+    VIEWS.forEach(v => { const el = $("#v-" + v); if (el) el.hidden = v !== id; });
+    $$(".tabs a").forEach(a => {
+      if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    });
+  }
+  const fromHash = () => showView((location.hash || "").slice(1));
+  window.addEventListener("hashchange", fromHash);
+
+  /* ---------- portfolio data ---------- */
+  const PARENT_FACTS = [
+    ["Renamed from Input Output Global on December 5, 2025.", "IO press release, Dec 5, 2025"],
+    ["Describes itself as a venture studio and systems company.", "IO About page, Nov 5, 2026"],
+    ["Homepage claims 600+ people in 50+ countries.", "iog.io, Nov 5, 2026 (IO's own claim)"],
+    ["Announced on July 17, 2026 that it will hand Cardano's core software and developer relations to outside teams and focus on IO Labs and IO Ventures.", "CoinDesk, Jul 17, 2026"]
+  ];
+  const VENTURES = [
+    { id: "midnight", name: "Midnight", line: "Privacy blockchain", stage: ["good", "Live"], own: ["fd", "Foundation-run"],
+      facts: [
+        ["Privacy-focused blockchain using zero-knowledge proofs. Mainnet launched March 30, 2026.", "Midnight blog, Mar 2026"],
+        ["Run by the Midnight Foundation. Shielded Technologies, an IO spinout, builds the protocol.", "Midnight docs and blog, 2026"],
+        ["IO calls itself the venture studio behind Midnight.", "IO Midnight Japan Tour page, 2026"],
+        ["Launch node operators included Google Cloud and Blockdaemon.", "Midnight blog, Feb 17, 2026"],
+        ["Contracts are written in Compact, which is based on TypeScript.", "Midnight docs, 2026"],
+        ["The Midnight Discord lists about 52,600 members.", "Discord server directory, Nov 2026"]],
+      rows: [
+        ["Audience", "Developers who know TypeScript, enterprise and financial partners, privacy-minded users.", "inf"],
+        ["Channels", "X @MidnightNtwrk, Discord, monthly State of the Network posts, Midnight Academy.", "pub"],
+        ["Constraint", "The Foundation appears to run day-to-day messaging, so IO marketing coordinates and does not command.", "inf"],
+        ["Lead metric", "Developers deploying contracts each month, against a baseline set in the first 30 days.", "ill"],
+        ["Marketing role", "Shared services plus narrative coordination. Midnight is the strongest proof of the venture studio story.", "inf"],
+        ["To confirm", "What the Foundation owns and what IO marketing owns.", ""]] },
+    { id: "city", name: "Midnight City", line: "AI-agent simulation", stage: ["good", "Live"], own: ["fd", "Part of Midnight"],
+      facts: [
+        ["A live simulated city where autonomous AI agents live, work and transact. It makes Midnight's privacy features visible.", "Midnight blog, Feb 2026"],
+        ["Public since February 26, 2026. Version 2 launched July 13, 2026 with customizable agents, reachable inside the Midnight Discord.", "Midnight blog, Feb and Jul 2026"],
+        ["Weekly community hangouts run on Fridays at 14:30 UTC.", "Midnight blog, 2026"],
+        ["Covered by BeInCrypto and HackerNoon.", "BeInCrypto and HackerNoon, 2026"]],
+      rows: [
+        ["Audience", "The Midnight community, developers curious about AI agents, technology press.", "inf"],
+        ["Channels", "midnight.city, the Midnight Discord, Friday hangouts.", "pub"],
+        ["Constraint", "I did not find a source that says who owns and funds it.", "inf"],
+        ["Lead metric", "Returning visitors and agents deployed per week.", "ill"],
+        ["Marketing role", "A template for show-don't-tell demos that Pogun and RealFi could copy.", "inf"],
+        ["To confirm", "Who owns and funds it, and whether other ventures can use the format.", ""]] },
+    { id: "lace", name: "Lace", line: "Multi-chain wallet", stage: ["good", "Live"], own: ["io", "IO venture"],
+      facts: [
+        ["Self-custody wallet for Cardano, Bitcoin and Midnight, with staking and governance voting.", "Lace 2.0 coverage, TapTools, Apr 30, 2026"],
+        ["Lace 2.0 was announced April 28, 2026 and added iOS and Android apps.", "TapTools, Apr 30, 2026"],
+        ["Lace 2.3 shipped in September 2026.", "lace.io blog, Sept 2026"],
+        ["The Google Play publisher is Input Output Global, Inc.", "Google Play listing, Oct 7, 2026"],
+        ["Cardano also reaches users through Brave Wallet.", "IO release, Oct 2, 2025"]],
+      rows: [
+        ["Audience", "Everyday holders, stakers and governance voters.", "inf"],
+        ["Channels", "X @lace_io and the lace.io blog.", "pub"],
+        ["Constraint", "Current user counts are not public, so any figure needs IO's own data.", "pub"],
+        ["Lead metric", "Monthly active wallets and sends per active wallet.", "ill"],
+        ["Marketing role", "Lifecycle and retention marketing for the product closest to everyday users.", "inf"],
+        ["To confirm", "Who owns Lace marketing today and which metrics already exist.", ""]] },
+    { id: "pogun", name: "Pogun", line: "Bitcoin DeFi", stage: ["warn", "Pre-launch"], own: ["io", "IO venture"],
+      facts: [
+        ["Three parts: a peer-to-peer credit market, a yield app and a Bitcoin bridge built on BitVM.", "IO Momentum proposal page, Apr 2026"],
+        ["Led by Omer Husain, general manager for Bitcoin DeFi.", "BigGo Finance, Apr 2026"],
+        ["Its treasury request did not pass: 35.67% of delegate voting power in favor, 64.33% against.", "CryptoSlate, Sept 20, 2026"],
+        ["On Sept 18, 2026 Hoskinson said it would launch within 90 days, about mid-December. Reports conflict on which chain will host it.", "CryptoSlate and Cryptonews, Sept 20 and 21, 2026"],
+        ["The May 1 roadmap listed a credit market in Q2, a yield app in Q3 and a bridge in Q4. I found no confirmed launch by Nov 5, 2026.", "IO X post, May 1, 2026"]],
+      rows: [
+        ["Audience", "Bitcoin holders and institutional treasuries.", "pub"],
+        ["Channels", "X @pogun_io and pogun.io.", "pub"],
+        ["Constraint", "Chain unconfirmed and a promised date. The story must be right before the date arrives.", "inf"],
+        ["Lead metric", "Waitlist to first loan conversion, then loan volume.", "ill"],
+        ["Marketing role", "The first live test of the shared calendar and gates. See the next view.", "inf"],
+        ["To confirm", "Who announces the chain, and when.", ""]] },
+    { id: "realfi", name: "RealFi", line: "Stablecoin yield", stage: ["good", "Live, limited regions"], own: ["io", "IO venture"],
+      facts: [
+        ["Stablecoin yield from real-world credit through the USDrf token and its yield-bearing version, sUSDrf. Mainnet launched October 1, 2026 with yields of up to 9%.", "24/7 Wall St., Oct 3, 2026"],
+        ["Not available in the US, EU or UK.", "24/7 Wall St., Oct 3, 2026"],
+        ["The testnet drew 3,600+ participants and 40,000+ actions.", "CoinCentral, Oct 2026"],
+        ["Listed as an IO product.", "iog.io footer, Nov 5, 2026"]],
+      rows: [
+        ["Audience", "Yield-seeking holders in permitted regions.", "inf"],
+        ["Channels", "Handles not verified.", ""],
+        ["Constraint", "A US-based lead cannot target US audiences, and every yield claim needs a claims review.", "inf"],
+        ["Lead metric", "Depositors still active after 30 days.", "ill"],
+        ["Marketing role", "The test case for the claims-and-regions gate.", "inf"],
+        ["To confirm", "Which regions marketing may address and who signs off yield language.", ""]] },
+    { id: "cardano", name: "Cardano", line: "Community-owned chain", stage: ["good", "Live"], own: ["co", "Community-owned"],
+      facts: [
+        ["A public blockchain that IO does not own. Hoskinson has said he is IO's CEO, not Cardano's.", "X post via DigitalToday, Sept 30, 2026"],
+        ["From August 2026 IO began handing the node, Plutus, Daedalus, Hydra and developer relations to outside teams.", "CoinDesk, Jul 17, 2026"],
+        ["Treasury spending is decided by votes from delegates. In 2026 seven IO proposals passed and three did not.", "IO Q2 2026 report; CryptoSlate, 2026"],
+        ["Hoskinson said IO would pick the best network for each product instead of defaulting to Cardano.", "CryptoSlate, Sept 20, 2026"]],
+      rows: [
+        ["Audience", "Cardano holders, delegates, stake pool operators and developers.", "inf"],
+        ["Channels", "Cardano Forum, Project Catalyst, community Telegram and Discord spaces, and Hoskinson's own channels.", "pub"],
+        ["Constraint", "IO influences the story but does not own it. Delegate votes work like a public pitch to an organized, skeptical audience.", "inf"],
+        ["Lead metric", "Share of IO proposals ratified and delegate sentiment before votes.", "ill"],
+        ["Marketing role", "Stakeholder relations rather than owned channels.", "inf"],
+        ["To confirm", "How much developer relations stays inside IO after the handover.", ""]] }
+  ];
+  let selV = "pogun";
+  function renderPortfolio() {
+    $("#parent-facts").innerHTML = factList(PARENT_FACTS);
+    $("#vtiles").innerHTML = VENTURES.map(v => `<button class="vt" data-v="${v.id}" aria-pressed="${v.id === selV}">
+      <b>${v.name}</b><small>${v.line}</small>
+      <span class="meta">${pill(v.stage[0], v.stage[1])}</span></button>`).join("");
+    const v = VENTURES.find(x => x.id === selV);
+    $("#vdetail").innerHTML = `<div class="dhead"><div><h3>${v.name}</h3><span class="src">${v.line}</span></div>
+      <div class="dpills">${pill(v.stage[0], v.stage[1])}<span class="chip own-${v.own[0]}">${v.own[1]}</span></div></div>
+      <div class="dgrid">
+        <div class="stack"><span class="eyebrow">What is public</span><ul class="facts">${factList(v.facts)}</ul></div>
+        <div class="stack"><span class="eyebrow">How marketing fits</span>
+          <dl>${v.rows.map(r => `<dt>${r[0]}</dt><dd>${r[1]}${tag(r[2])}</dd>`).join("")}</dl></div>
+      </div>`;
+  }
+
+  /* ---------- brand architecture ---------- */
+  const BRAND = {
+    branded: { label: "Branded house", desc: "One name leads everywhere. Every venture carries IO in front.",
+      lock: [["Midnight", "IO Midnight"], ["Lace", "IO Lace"], ["Pogun", "IO Pogun"], ["RealFi", "IO RealFi"]],
+      good: ["One story for investors, regulators and recruits.", "Fewer names to explain."],
+      cost: ["Every venture inherits IO's history and sentiment.", "A venture that changes chain still carries the IO name.", "Midnight is Foundation-run, so it may not agree."] },
+    endorsed: { label: "Endorsed brands", desc: "The venture name leads. IO appears as a quiet endorsement.",
+      lock: [["Midnight", "Midnight, from IO"], ["Lace", "Lace, by IO"], ["Pogun", "Pogun, by IO"], ["RealFi", "RealFi, by IO"]],
+      good: ["Ventures can change chain or audience and keep their identity.", "IO's name still signals credibility to partners.", "Fits the stance that each product picks its own network."],
+      cost: ["Needs clear rules for when the endorsement shows.", "Two-name lockups need design discipline.", "Midnight's lockup needs the Foundation's agreement."] },
+    house: { label: "House of brands", desc: "Ventures stand alone. IO stays in the background.",
+      lock: [["Midnight", "Midnight"], ["Lace", "Lace"], ["Pogun", "Pogun"], ["RealFi", "RealFi"]],
+      good: ["A struggling venture does not damage the others.", "Maximum freedom on chain and audience."],
+      cost: ["IO builds no brand equity of its own.", "Each venture pays for its own awareness.", "Weaker for recruiting and partner trust."] }
+  };
+  let bm = "endorsed";
+  function renderBrand() {
+    $("#bm-btns").innerHTML = Object.keys(BRAND).map(k => `<button class="btn" data-bm="${k}" aria-pressed="${k === bm}">${BRAND[k].label}</button>`).join("");
+    const m = BRAND[bm];
+    $("#bm-body").innerHTML = `<div class="dgrid">
+      <div class="stack"><p>${m.desc}</p>
+        <div class="tbl"><table class="lock"><thead><tr><th>Venture</th><th>How the name appears</th></tr></thead>
+        <tbody>${m.lock.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</tbody></table></div>
+        <span class="src">Cardano keeps its own name in every model because IO does not own it.</span></div>
+      <div class="stack">
+        <div class="stack"><span class="eyebrow">Works well</span><ul>${m.good.map(x => `<li>${x}</li>`).join("")}</ul></div>
+        <div class="stack"><span class="eyebrow">Costs</span><ul>${m.cost.map(x => `<li>${x}</li>`).join("")}</ul></div>
+        ${tag("inf")}
+      </div></div>`;
+  }
+
+  /* ---------- calendar data ---------- */
+  const ROWS = [["io", "IO parent"], ["midnight", "Midnight"], ["lace", "Lace"], ["pogun", "Pogun"], ["realfi", "RealFi"], ["cardano", "Cardano"]];
+  const ROWNAME = { io: "IO", midnight: "Midnight", lace: "Lace", pogun: "Pogun", realfi: "RealFi", cardano: "Cardano" };
+  const EVENTS = [
+    { id: 1, row: "io", y: 2025, m: 12, d: 5, label: "Rebrand to Input Output (IO)", st: "done", src: "IO press release, Dec 5, 2025" },
+    { id: 2, row: "midnight", y: 2025, m: 12, d: null, label: "NIGHT token launches", st: "done", src: "Midnight token coverage, Dec 2025", note: "Exact day not confirmed in the sources I found." },
+    { id: 3, row: "midnight", y: 2026, m: 2, d: 26, label: "Midnight City goes public", st: "done", src: "Midnight blog, Feb 2026" },
+    { id: 4, row: "cardano", y: 2026, m: 2, d: 27, label: "USDCx stablecoin arrives on Cardano", st: "done", src: "IO, Feb 27, 2026" },
+    { id: 5, row: "midnight", y: 2026, m: 3, d: 30, label: "Midnight mainnet launches", st: "done", src: "Midnight blog, Mar 2026" },
+    { id: 6, row: "io", y: 2026, m: 4, d: 20, label: "Athens AI and blockchain lab announced", st: "done", src: "IO release, Apr 20, 2026" },
+    { id: 7, row: "io", y: 2026, m: 4, d: 22, label: "2026 treasury proposals published", st: "done", src: "FXStreet, Apr 22, 2026; IO blog, Apr 23, 2026" },
+    { id: 8, row: "lace", y: 2026, m: 4, d: 28, label: "Lace 2.0: mobile apps and Midnight support", st: "done", src: "TapTools, Apr 30, 2026" },
+    { id: 9, row: "pogun", y: 2026, m: 5, d: 1, label: "Pogun roadmap posted: credit market Q2, yield app Q3, bridge Q4", st: "done", src: "IO X post, May 1, 2026", note: "I found no confirmed launch of these items by Nov 5, 2026." },
+    { id: 10, row: "io", y: 2026, m: 6, d: 12, label: "Research proposal reported ratified at 74.96%", st: "done", src: "Cardano weekly report, Jun 12, 2026; IO Q2 report", note: "One governance tracker labels it expired. Two official sources say ratified." },
+    { id: 11, row: "midnight", y: 2026, m: 7, d: 13, label: "Midnight City version 2", st: "done", src: "Midnight blog, Jul 2026" },
+    { id: 12, row: "io", y: 2026, m: 7, d: 17, label: "Core Cardano software handover announced; IO Labs and IO Ventures", st: "done", src: "CoinDesk, Jul 17, 2026" },
+    { id: 13, row: "lace", y: 2026, m: 9, d: null, label: "Lace 2.3 ships", st: "done", src: "lace.io blog, Sept 2026", note: "Exact day not confirmed." },
+    { id: 14, row: "pogun", y: 2026, m: 9, d: 18, label: "Funding vote fails; launch promised within 90 days", st: "done", src: "CryptoSlate, Sept 20, 2026" },
+    { id: 15, row: "realfi", y: 2026, m: 10, d: 1, label: "RealFi mainnet launches (not in US, EU or UK)", st: "done", src: "24/7 Wall St., Oct 3, 2026" },
+    { id: 16, row: "cardano", y: 2026, m: 10, d: 7, label: "Record transaction epoch begins (Oct 7 to 11)", st: "done", src: "The Crypto Basic, Oct 27, 2026" },
+    { id: 17, row: "cardano", y: 2026, m: 10, d: 18, label: "Hoskinson announces a new programming language (no release date)", st: "done", src: "TheStreet, Oct 22, 2026" },
+    { id: 18, row: "pogun", y: 2026, m: 12, d: 17, label: "Pogun launch promised (90 days from Sept 18)", st: "promised", src: "CryptoSlate and Cryptonews, Sept 20 and 21, 2026", note: "A promise, not a delivered event. The host chain is unconfirmed. Dec 17 is my calculation from the 90-day statement." },
+    { id: 19, row: "io", y: 2027, m: 1, d: null, label: "IO Labs and IO Ventures structure begins", st: "planned", src: "cryptonews.net summary of the Jul 17 announcement", note: "Exact date not announced. The source is a secondary summary." }
+  ];
+  const ST = { done: ["good", "Happened"], promised: ["warn", "Promised"], planned: ["info", "Planned, no date"] };
+  const evDate = e => (e.d ? D(e.y, e.m, e.d) : null);
+  const evText = e => (e.d ? fmt(evDate(e)) : MN[e.m - 1] + " " + e.y + " (day not stated)");
+  const MONTHS = [];
+  { let y = 2025, m = 12; while (y < 2027 || m <= 3) { MONTHS.push({ y, m }); m++; if (m > 12) { m = 1; y++; } } }
+  let selEv = 18;
+  let off = 31;
+  const LAUNCH0 = D(2026, 11, 16);
+  const launchAt = o => { const d = new Date(LAUNCH0.getTime()); d.setDate(d.getDate() + o); return d; };
+
+  function renderGrid() {
+    const sc = launchAt(off);
+    const head = `<thead><tr><th class="rowh">Where</th>${MONTHS.map(mo => `<th class="${mo.y === TODAY.getFullYear() && mo.m === TODAY.getMonth() + 1 ? "now" : ""}">${MN[mo.m - 1]}<small>${mo.y}</small></th>`).join("")}</tr></thead>`;
+    const body = ROWS.map(([id, name]) => `<tr><th class="rowh" scope="row">${name}</th>${MONTHS.map(mo => {
+      const evs = EVENTS.filter(e => e.row === id && e.y === mo.y && e.m === mo.m);
+      const isNow = mo.y === TODAY.getFullYear() && mo.m === TODAY.getMonth() + 1;
+      const mark = id === "pogun" && sc.getFullYear() === mo.y && sc.getMonth() + 1 === mo.m ? `<i class="sc" title="What-if launch date" aria-label="What-if launch date ${fmt(sc)}"></i>` : "";
+      return `<td class="${isNow ? "now" : ""}"><div class="cw">${evs.map(e => `<button class="ev ${e.st}" data-ev="${e.id}" aria-pressed="${e.id === selEv}" aria-label="${e.label}, ${evText(e)}"></button>`).join("")}${mark}</div></td>`;
+    }).join("")}</tr>`).join("");
+    $("#grid-wrap").innerHTML = `<table class="tl">${head}<tbody>${body}</tbody></table>`;
+  }
+  function renderEvDetail() {
+    const e = EVENTS.find(x => x.id === selEv);
+    $("#ev-detail").innerHTML = `<div class="dhead" style="margin-bottom:8px"><div><h3>${e.label}</h3><span class="src">${ROWNAME[e.row]} · ${evText(e)}</span></div><div class="dpills">${pill(ST[e.st][0], ST[e.st][1])}</div></div>
+      <p class="src">Source: ${e.src}</p>${e.note ? `<p style="margin-top:6px">${e.note}</p>` : ""}`;
+  }
+  function renderEvTable() {
+    const sorted = EVENTS.slice().sort((a, b) => D(a.y, a.m, a.d || 1) - D(b.y, b.m, b.d || 1));
+    $("#ev-table").innerHTML = sorted.map(e => `<tr><td>${evText(e)}</td><td>${ROWNAME[e.row]}</td><td>${e.label}</td><td>${pill(ST[e.st][0], ST[e.st][1])}</td><td class="src">${e.src}</td></tr>`).join("");
+  }
+  const joinList = a => (a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1]);
+  function busiest() {
+    const ex = EVENTS.filter(e => e.d).sort((a, b) => evDate(a) - evDate(b));
+    let best = null;
+    ex.forEach(a => {
+      const grp = ex.filter(b => { const n = diffDays(evDate(b), evDate(a)); return n >= 0 && n <= 13; });
+      if (!best || grp.length > best.grp.length) best = { a, grp };
+    });
+    const start = evDate(best.a), end = new Date(start.getTime()); end.setDate(end.getDate() + 13);
+    const rows = [];
+    best.grp.forEach(e => { if (!rows.includes(ROWNAME[e.row])) rows.push(ROWNAME[e.row]); });
+    return { n: best.grp.length, start, end, rows };
+  }
+  function renderBusiest() {
+    const b = busiest();
+    $("#busiest").innerHTML = `${pill("warn", "Inference")} <b>Busiest 14-day stretch in this record:</b> ${fmtS(b.start)} to ${fmtS(b.end)}, 2026, with ${b.n} public stories across ${joinList(b.rows)}. A shared calendar exists to see stretches like this before they happen.`;
+  }
+
+  /* ---------- launch what-if ---------- */
+  const GATES = [
+    { t: "Confirm the host chain and the launch narrative", lead: 35, who: ["coo", "head"], gate: true },
+    { t: "Review claims and regions with legal", lead: 28, who: ["legal"], gate: true },
+    { t: "Brief every partner and agency from one document", lead: 28, who: ["head", "agency"] },
+    { t: "Produce the explainer, video, landing page and community assets", lead: 21, who: ["agency", "coord"] },
+    { t: "Brief delegates and governance contacts if Cardano is involved", lead: 14, who: ["head"] },
+    { t: "Brief moderators and support; pin scam warnings", lead: 7, who: ["coord", "agency"] },
+    { t: "Switch on tracking and the reporting view", lead: 7, who: ["coord"] },
+    { t: "Final go or no-go with the COO", lead: 3, who: ["head", "coo"], gate: true }
+  ];
+  function scenario(o) {
+    const L = launchAt(o);
+    const flags = [];
+    const promise = D(2026, 12, 17);
+    const late = diffDays(L, promise);
+    flags.push(late > 0
+      ? ["warn", `Lands ${late} day${late > 1 ? "s" : ""} after the public 90-day promise (about Dec 17, 2026). Expect the question: where is Pogun?`]
+      : ["good", "Inside the public 90-day promise (about Dec 17, 2026)."]);
+    if (L >= D(2026, 12, 21) && L <= D(2027, 1, 2)) flags.push(["crit", "Falls in the holiday quiet period, Dec 21 to Jan 2 (planning rule, illustrative)."]);
+    if (L.getFullYear() === 2027 && L.getMonth() === 0) flags.push(["warn", "Same month as the new IO Labs and IO Ventures structure (date not announced). Two IO stories would compete."]);
+    const dow = L.getDay();
+    if (dow === 0 || dow === 6) flags.push(["warn", "Weekend launch: thin press and moderator cover (illustrative)."]);
+    const gates = GATES.map(g => {
+      const s = new Date(L.getTime()); s.setDate(s.getDate() - g.lead);
+      const delta = diffDays(s, TODAY);
+      let st, txt;
+      if (delta < 0) { st = "crit"; txt = `Late by ${-delta} day${delta === -1 ? "" : "s"}`; }
+      else if (delta <= 7) { st = "warn"; txt = delta === 0 ? "Start today" : `Start within ${delta} day${delta === 1 ? "" : "s"}`; }
+      else { st = "good"; txt = `Start by ${fmtS(s)}`; }
+      return Object.assign({}, g, { start: s, delta, st, txt });
+    });
+    const nLate = gates.filter(g => g.delta < 0).length;
+    flags.push(nLate ? ["crit", `${nLate} preparation step${nLate > 1 ? "s" : ""} would already be late.`] : ["good", "Every preparation step can still start on time."]);
+    flags.push(["warn", "The host chain is not yet confirmed publicly, so step 1 cannot finish until it is."]);
+    const rank = { good: 0, warn: 1, crit: 2 };
+    const worst = flags.reduce((a, f) => (rank[f[0]] > rank[a] ? f[0] : a), "good");
+    return { L, flags, gates, worst, nLate };
+  }
+  const OVERALL = { good: "Clear", warn: "Watch", crit: "Conflict" };
+  function renderScenario() {
+    const r = scenario(off);
+    $("#sc-date").textContent = r.L.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+    $("#sc-overall").innerHTML = pill(r.worst, OVERALL[r.worst]) + ` <span class="src">${r.nLate} late step${r.nLate === 1 ? "" : "s"}, ${r.flags.filter(f => f[0] !== "good").length} flag${r.flags.filter(f => f[0] !== "good").length === 1 ? "" : "s"}</span>`;
+    $("#sc-flags").innerHTML = r.flags.map(f => `<li>${pill(f[0], f[0] === "good" ? "Fine" : f[0] === "warn" ? "Watch" : "Conflict")}<span>${f[1]}</span></li>`).join("");
+    $("#sc-gates").innerHTML = r.gates.map(g => `<li><span class="t">${g.gate ? '<span class="gate">Gate</span>' : ""}${g.t}</span><span class="who">${g.who.map(chip).join("")}</span>${pill(g.st, g.txt)}</li>`).join("");
+    renderGrid();
+  }
+
+  /* ---------- KPI ladder ---------- */
+  const RUNGS = [
+    { id: "outcome", name: "Business outcome", who: "COO, monthly", ask: "Is the business moving?", guard: "Counts only outcomes that last 90 days." },
+    { id: "adoption", name: "Adoption", who: "Venture lead, weekly", ask: "Are new people doing the first real thing?", guard: "Counts real first actions, never sign-ups or airdrop claims." },
+    { id: "retention", name: "Retention", who: "Venture lead and marketing, weekly", ask: "Do they come back?", guard: "Measured by cohort, never as an average of new and old users." },
+    { id: "community", name: "Community health", who: "Head of Marketing, weekly", ask: "Do members help each other and trust what we say?", guard: "A member counts only if they posted, replied or voted. Joining does not count." },
+    { id: "reach", name: "Reach", who: "Agencies and coordinator, weekly", ask: "Did the right people see it?", guard: "Never reported alone. Always shown next to the rung above it." }
+  ];
+  const LV = [
+    { id: "midnight", name: "Midnight", lead: "adoption", r: {
+      outcome: ["Partner deployments in production", "Partner and enterprise apps live on mainnet and still running after 90 days."],
+      adoption: ["Developers who deployed a contract", "Distinct developers with a first or repeat deployment this month."],
+      retention: ["Developers still deploying at week 8", "Share of each month's first-time deployers who deploy again 8 weeks later. Midnight City returning visitors sit here too."],
+      community: ["Questions answered by other members", "Share of developer questions in Discord answered by another member within 24 hours, plus weekly active contributors."],
+      reach: ["Qualified documentation visits", "Visits from developers who read past the first page."] } },
+    { id: "lace", name: "Lace", lead: "outcome", r: {
+      outcome: ["Monthly active wallets", "Wallets that sent, staked, swapped or voted in the past 30 days."],
+      adoption: ["First action within 14 days", "New wallets that complete a first send, stake or vote within two weeks."],
+      retention: ["Wallets active at week 8", "Share of each month's new wallets still active 8 weeks later."],
+      community: ["Support solved first time", "Share of support questions resolved in the first reply, plus governance votes cast through Lace each epoch."],
+      reach: ["Store page to install", "Visits that become installs, from store listings and the website."] } },
+    { id: "pogun", name: "Pogun", lead: "adoption", r: {
+      outcome: ["Loan volume and deposits", "Value of loans opened and yield deposits held after launch. Starts at zero until launch."],
+      adoption: ["Waitlist to first loan", "Share of waitlist members who open a first loan within 30 days of launch."],
+      retention: ["Users active in month two", "Borrowers and lenders who act again in their second month."],
+      community: ["Questions answered within a day", "Share of questions answered within 24 hours by the team or other members, plus partner integrations live."],
+      reach: ["Qualified waitlist sign-ups", "Sign-ups from Bitcoin-holder communities, not giveaways."] } },
+    { id: "realfi", name: "RealFi", lead: "retention", r: {
+      outcome: ["Value held at 90 days", "Deposits still in the product 90 days after they arrive."],
+      adoption: ["Testnet to mainnet depositors", "Share of testnet participants who deposit on mainnet. The testnet drew 3,600+ participants (public)."],
+      retention: ["Depositors still active at 30 days", "Share of each month's first-time depositors who still hold or add funds 30 days later."],
+      community: ["Questions answered with approved wording", "Share of yield questions answered using reviewed language, in permitted regions only."],
+      reach: ["Qualified visits from permitted regions", "Visits from regions where RealFi is available. Excludes US, EU and UK traffic."] } },
+    { id: "cardano", name: "Cardano", lead: "outcome", r: {
+      outcome: ["IO proposals ratified", "Share of IO treasury proposals that pass in each round. Public data exists for 2026, shown below."],
+      adoption: ["Developers shipping each month", "Distinct developers who publish a release or deploy, from ecosystem data. A shared measure: IO influences it, but developer relations is moving to outside teams (CoinDesk, Jul 17, 2026)."],
+      retention: ["Delegates voting in consecutive rounds", "Share of delegates who vote again in the next round."],
+      community: ["Support before the vote", "Delegate support signals during discussion, before ballots open, plus technical questions answered in forums."],
+      reach: ["Qualified visits to proposal pages", "Visits from delegates and stake pool operators who read the full proposal."] } }
+  ];
+  let lv = "midnight", lmode = "down";
+  function renderLadder() {
+    $("#lv-btns").innerHTML = LV.map(v => `<button class="btn" data-lv="${v.id}" aria-pressed="${v.id === lv}">${v.name}</button>`).join("");
+    $("#lm-btns").innerHTML = [["down", "Top down: what the COO asks"], ["up", "Bottom up: how we diagnose"]].map(([k, t]) => `<button class="btn" data-lm="${k}" aria-pressed="${k === lmode}">${t}</button>`).join("");
+    const v = LV.find(x => x.id === lv);
+    const order = lmode === "down" ? RUNGS : RUNGS.slice().reverse();
+    $("#ladder").innerHTML = order.map((r, i) => {
+      const idx = RUNGS.indexOf(r);
+      const below = RUNGS[idx + 1], above = RUNGS[idx - 1];
+      const foot = lmode === "down"
+        ? (below ? `If it stalls, check ${below.name.toLowerCase()}.` : "If this is high and the rung above is flat, the message or the channel is wrong.")
+        : (above ? `If it is healthy, confirm it lifts ${above.name.toLowerCase()}.` : "This is the number the COO reviews each month.");
+      const e = v.r[r.id];
+      return `<div class="rung${r.id === "community" ? " hl" : ""}" style="--i:${i}">
+        <div class="rhead"><h3>${r.name}</h3><span class="chip">${r.who}</span>${v.lead === r.id ? '<span class="chip lead">Lead metric on the portfolio map</span>' : ""}</div>
+        ${r.id === "community" ? '<span class="rbridge">Where the ladder meets the community</span>' : ""}
+        <span class="src">${r.ask}</span>
+        <p class="rm">${e[0]}</p><p>${e[1]}</p>
+        <span class="src">Guardrail: ${r.guard}</span><span class="src">${foot}</span></div>`;
+    }).join("");
+  }
+
+  const MEMBERS = 52592;
+  function renderConv() {
+    const a = +$("#cv-a").value, b = +$("#cv-b").value;
+    $("#cv-a-o").textContent = a + "%"; $("#cv-b-o").textContent = b + "%";
+    const active = Math.round(MEMBERS * a / 100), contrib = Math.round(active * b / 100);
+    const nf = n => n.toLocaleString("en-US");
+    const rows = [["Members (headline)", MEMBERS, 100], ["Active in 28 days", active, a], ["Contributors", contrib, a * b / 100]];
+    $("#cv-out").innerHTML = rows.map(r => `<div class="cbar"><span>${r[0]}</span><div class="bar"><i style="width:${Math.max(1, r[2])}%"></i></div><span class="num">${nf(r[1])}</span></div>`).join("")
+      + `<p>A report that says ${nf(MEMBERS)} members and one that says ${nf(contrib)} contributors describe the same server. Only the second shows who is likely to answer a developer's question.</p>`;
+  }
+
+  const THRESH = 67;
+  const VOTES = [
+    { n: "Consensus and Leios scaling", v: 84, approx: true, src: "Crypto Times, May 25, 2026, citing Cexplorer" },
+    { n: "Research (Cardano Vision 2026)", v: 74.96, src: "IO Q2 2026 report; Cardano weekly report, Jun 12, 2026" },
+    { n: "Developer experience", v: 67.9, src: "AdaStat via Bitcoinist, May 26, 2026" },
+    { n: "Pogun", v: 35.67, src: "CryptoSlate, Sept 20, 2026, citing Koios" }
+  ];
+  function renderChart() {
+    const rows = VOTES.slice().sort((a, b) => b.v - a.v);
+    const lo = rows[rows.length - 1], hi = rows[0];
+    $("#bars-lede").textContent = `Delegates vote on IO's funding requests in public. Their support is the one community number with a public record. It ranged from ${Math.round(lo.v)}% to about ${Math.round(hi.v)}% across four 2026 proposals, and each case was argued in the open before the vote.`;
+    const head = `<div class="brow head"><span></span><div class="axis"><span style="left:0">0%</span><span style="left:${THRESH}%;transform:translateX(-50%)">${THRESH}% needed</span><span style="right:0">100%</span></div><span></span></div>`;
+    $("#bars").innerHTML = head + rows.map(r => {
+      const pass = r.v >= THRESH;
+      return `<div class="brow"><span>${r.n}</span><div class="btrack${pass ? "" : " fail"}"><i style="width:${r.v}%"></i></div><span class="bv">${r.approx ? "about " + Math.round(r.v) : r.v.toFixed(2)}% ${pill(pass ? "good" : "warn", pass ? "Passed" : "Did not pass")}</span></div>`;
+    }).join("");
+    $("#bars-src").innerHTML = rows.map(r => `<li>${r.n}<span class="src">${r.src}</span></li>`).join("");
+    $("#bars-take").innerHTML = `${pill("warn", "Inference")} Marketing's job here is to make each case understood before the vote opens: plain-language summaries, return on investment and delegate briefings by region. Developer experience passed narrowly, so every conversation before a vote counts.`;
+  }
+
+  /* ---------- Funnel and CAC ---------- */
+  const FN = [
+    { id: "midnight", name: "Midnight", spend: 100000, cpv: 6, c1: 8, c2: 30, c3: 15, val: 15, mo: 12, cp: 8, proxy: true,
+      s: ["Qualified documentation visits", "Developers who deploy a contract", "Still deploying at week 8", "Answer another developer's question"],
+      vl: "Value per retained developer per month (proxy for partner and ecosystem value)", note: "Midnight value is a proxy, not revenue." },
+    { id: "lace", name: "Lace", spend: 100000, cpv: 1.5, c1: 12, c2: 25, c3: 6, val: 4, mo: 10, cp: 8, proxy: false,
+      s: ["Store page visits", "Wallets that complete a first send, stake or vote", "Still active at week 8", "Vote in governance or help in support"],
+      vl: "Value per active wallet per month (fees and partner revenue)", note: "" },
+    { id: "pogun", name: "Pogun", spend: 100000, cpv: 3, c1: 10, c2: 35, c3: 8, val: 20, mo: 8, cp: 8, proxy: false,
+      s: ["Qualified waitlist visits", "Users who open a first loan", "Active in month two", "Answer a question or test an integration"],
+      vl: "Value per active user per month (fees on loan volume)", note: "Pogun has not launched yet, so every value here is a planning figure." },
+    { id: "realfi", name: "RealFi", spend: 100000, cpv: 4, c1: 6, c2: 40, c3: 5, val: 12, mo: 12, cp: 4, proxy: false,
+      s: ["Qualified visits from permitted regions", "First mainnet deposits", "Still active at 30 days", "Answer a question with approved wording"],
+      vl: "Value per active depositor per month (fees on deposits)", note: "Excludes the US, EU and UK. Every claim in paid and community content needs approved wording." },
+    { id: "cardano", name: "Cardano", spend: 100000, cpv: 5, c1: 5, c2: 30, c3: 10, val: 0, mo: 12, cp: 8, proxy: false,
+      s: ["Qualified visits to proposal and developer pages", "Developers or delegates who take a first action", "Still active at week 8", "Contribute to a forum thread or vote"],
+      vl: "Value per active participant per month (none by default)", note: "Cardano is community-owned. IO funds only its own share of programs, and no revenue per user exists, so LTV is left off by default." }
+  ];
+  let fv = "midnight";
+  const money = n => "$" + (n < 100 ? n.toFixed(2) : Math.round(n).toLocaleString("en-US"));
+  const cnt = n => Math.round(n).toLocaleString("en-US");
+  function setFunnel(id) {
+    fv = id; const f = FN.find(x => x.id === id);
+    const set = (k, v) => { $("#fn-" + k).value = String(v); };
+    set("spend", f.spend); set("cpv", f.cpv); set("c1", f.c1); set("c2", f.c2); set("c3", f.c3); set("val", f.val); set("mo", f.mo);
+    $("#fn-btns").innerHTML = FN.map(v => `<button class="btn" data-fv="${v.id}" aria-pressed="${v.id === fv}">${v.name}</button>`).join("");
+    $("#fn-c1-l").textContent = "Share of visits that reach: " + f.s[1].toLowerCase();
+    $("#fn-c2-l").textContent = "Share of those still active at checkpoint (" + (f.cp === 4 ? "4 weeks" : "8 weeks") + ")";
+    $("#fn-c3-l").textContent = "Share of retained users who " + f.s[3].toLowerCase();
+    $("#fn-val-l").textContent = f.vl;
+    $("#fn-note").textContent = f.note;
+    renderFunnel();
+  }
+  function renderFunnel() {
+    const f = FN.find(x => x.id === fv);
+    const spend = +$("#fn-spend").value, cpv = +$("#fn-cpv").value, c1 = +$("#fn-c1").value / 100, c2 = +$("#fn-c2").value / 100, c3 = +$("#fn-c3").value / 100, val = +$("#fn-val").value, mo = +$("#fn-mo").value;
+    $("#fn-spend-o").textContent = money(spend); $("#fn-cpv-o").textContent = money(cpv);
+    $("#fn-c1-o").textContent = Math.round(c1 * 100) + "%"; $("#fn-c2-o").textContent = Math.round(c2 * 100) + "%"; $("#fn-c3-o").textContent = Math.round(c3 * 100) + "%";
+    $("#fn-val-o").textContent = money(val) + " / mo"; $("#fn-mo-o").textContent = mo + " months";
+    const visits = spend / cpv, acts = visits * c1, kept = acts * c2, contrib = kept * c3;
+    const stages = [[f.s[0], visits], [f.s[1], acts], [f.s[2], kept], [f.s[3], contrib]];
+    const top = Math.log10(visits + 1);
+    $("#fn-stages").innerHTML = stages.map(([n, v]) => `<div class="fbar"><span>${n}</span><div class="bar"><i style="width:${Math.max(1, Math.log10(v + 1) / top * 100)}%"></i></div><span class="num">${cnt(v)}</span></div>`).join("");
+    const cacHead = acts ? spend / acts : 0, cacReal = kept ? spend / kept : 0, perContrib = contrib ? spend / contrib : 0;
+    const ltv = val * mo, ratio = cacReal ? ltv / cacReal : 0, payback = val ? cacReal / val : 0;
+    const tone = ratio >= 3 ? "good" : ratio >= 1 ? "warn" : "crit";
+    const t = (cls, v, l) => `<div class="kpi ${cls}"><b>${v}</b><span>${l}</span></div>`;
+    $("#fn-kpis").innerHTML =
+      t("", money(cacHead), "Headline cost per first real action") +
+      t("", money(cacReal), "Cost per retained user (real CAC)") +
+      t("", money(perContrib), "Cost per contributor") +
+      (val ? t("", money(ltv), "LTV per retained user" + (f.proxy ? " (proxy)" : "")) + t(tone, ratio.toFixed(1) + " to 1", "LTV to CAC, against a 3 to 1 target") + t("", payback.toFixed(1) + " months", "Payback on real CAC")
+           : t("", "Not computed", "No value per user set, so LTV is off"));
+    $("#fn-read").textContent = `The headline cost of ${money(cacHead)} per first action looks ${(1 / c2).toFixed(1)} times cheaper than the real cost of ${money(cacReal)} per person who stays. Only about ${cnt(contrib)} of the ${cnt(acts)} first actions become contributors, so each contributor costs ${money(perContrib)}.`;
+    const weeks = [0, 2, 4, 8, 12];
+    $("#fn-ret").innerHTML = weeks.map(w => { const r = Math.pow(c2, w / f.cp); return `<div class="fbar"><span>Week ${w}</span><div class="bar"><i style="width:${Math.max(1, r * 100)}%"></i></div><span class="num">${Math.round(r * 100)}%</span></div>`; }).join("");
+    $("#fn-ret-note").textContent = `Share of a month's first-time ${f.id === "cardano" ? "participants" : "users"} still active, assuming steady decay that hits your ${Math.round(c2 * 100)}% checkpoint at ${f.cp === 4 ? "week 4" : "week 8"}. Illustrative.`;
+  }
+
+  /* ---------- Community and governance ---------- */
+  const VSTEPS = [
+    ["Publish a plain-language summary of the proposal", 21],
+    ["Brief delegates and stake pool operators", 14],
+    ["Open a Q&A thread and answer within 24 hours", 10],
+    ["Check sentiment and note the open objections", 7],
+    ["Publish an FAQ that answers the objections", 5],
+    ["Vote opens", 0],
+    ["Publish a results explainer within a day", -1],
+    ["Re-check sentiment and report back to the community", -7]
+  ];
+  function stepWhen(L) { return L > 0 ? L + " days before" : L === 0 ? "Vote day" : (-L) + " day" + (L === -1 ? "" : "s") + " after"; }
+  function renderVote() {
+    const d = +$("#cm-d").value;
+    $("#cm-d-o").textContent = d > 0 ? d + " days" : d === 0 ? "Today" : "Opened " + (-d) + " day" + (d === -1 ? "" : "s") + " ago";
+    $("#cm-steps").innerHTML = VSTEPS.map(([t, L]) => {
+      const on = d <= L;
+      const st = on ? pill("good", "Should be under way") : pill("", "Starts in " + (d - L) + " day" + (d - L === 1 ? "" : "s"));
+      return `<tr><td>${t}</td><td>${stepWhen(L)}</td><td>${st}</td></tr>`;
+    }).join("");
+  }
+  const PRESETS = [["dx", "Developer experience", 67.9], ["pg", "Pogun", 35.67]];
+  function renderUndec() {
+    const s = +$("#cm-s").value, u = +$("#cm-u").value, T = 67;
+    $("#cm-s-o").textContent = s.toFixed(2).replace(/\.?0+$/, "") + "%"; $("#cm-u-o").textContent = u + "%";
+    $("#cm-pre").innerHTML = PRESETS.map(([k, n, v]) => `<button class="btn" data-pr="${v}">${n}</button>`).join("");
+    const gap = T - s;
+    let k, read;
+    if (gap <= 0) { k = `<div class="kpi good"><b>Above</b><span>Margin over the 67% line: ${(-gap).toFixed(2).replace(/\.?0+$/, "")} points</span></div>`;
+      read = `Support is already over the line by ${(-gap).toFixed(2).replace(/\.?0+$/, "")} points. A margin this thin can disappear with a bad week, so the work before the vote still matters.`; }
+    else if (gap > u) { k = `<div class="kpi crit"><b>Out of reach</b><span>Short by ${(gap - u).toFixed(1)} points even if every undecided delegate says yes</span></div>`;
+      read = `The gap is ${gap.toFixed(1)} points and only ${u}% is undecided. The case needs to change minds that have already formed, which is a proposal question before it is a marketing one.`; }
+    else { const need = u ? gap / u * 100 : 0; k = `<div class="kpi ${need > 75 ? "warn" : "good"}"><b>${Math.round(need)}%</b><span>of the undecided must come over</span></div><div class="kpi"><b>${gap.toFixed(1)} pts</b><span>gap to the 67% line</span></div>`;
+      read = `To reach 67%, about ${Math.round(need)} of every 100 undecided delegates must support the proposal. The earlier they understand it, the less persuasion happens under deadline.`; }
+    $("#cm-kpis").innerHTML = k; $("#cm-read").textContent = read;
+  }
+
+  /* ---------- Agency board ---------- */
+  const LANES = ["Brief", "In production", "In review", "Approved", "Live"];
+  const BV = [["all", "All"], ["midnight", "Midnight"], ["lace", "Lace"], ["pogun", "Pogun"], ["realfi", "RealFi"], ["cardano", "Cardano"], ["io", "IO-wide"]];
+  const BT = [["all", "Everyone"], ["Agency", "Agency"], ["Freelancer", "Freelancer"], ["Contractor", "Contractor"], ["Internal", "Internal"]];
+  const TCOL = { Agency: "var(--info)", Freelancer: "var(--good)", Contractor: "var(--warn)", Internal: "var(--accent)" };
+  const CARDS0 = [
+    { id: 1, t: "Developer tutorial series, part 3", v: "midnight", k: "Freelancer", lane: 1, due: "Week 2", cp: "Venture lead", rv: "An engineer for accuracy, then Head of Marketing", sla: "2 business days" },
+    { id: 2, t: "Midnight City event teaser", v: "midnight", k: "Agency", lane: 0, due: "Week 4", cp: "Head of Marketing", rv: "Venture lead", sla: "2 business days" },
+    { id: 3, t: "Voting through the wallet: explainer", v: "lace", k: "Freelancer", lane: 2, due: "Week 1", cp: "Venture lead", rv: "Head of Marketing", sla: "1 business day" },
+    { id: 4, t: "Install campaign, creative round 2", v: "lace", k: "Agency", lane: 1, due: "Week 2", cp: "Venture lead", rv: "Head of Marketing", sla: "2 business days" },
+    { id: 5, t: "Waitlist page and welcome emails", v: "pogun", k: "Agency", lane: 1, due: "Week 3", cp: "Head of Marketing", rv: "Venture lead", sla: "2 business days" },
+    { id: 6, t: "Launch press plan", v: "pogun", k: "Agency", lane: 0, due: "Week 5", cp: "Head of Marketing", rv: "Legal and compliance", sla: "3 business days" },
+    { id: 7, t: "Permitted-region campaign copy", v: "realfi", k: "Contractor", lane: 2, due: "Week 2", cp: "Venture lead", rv: "Legal and compliance", sla: "3 business days" },
+    { id: 8, t: "FAQ in approved wording", v: "realfi", k: "Freelancer", lane: 3, due: "Week 1", cp: "Community lead", rv: "Legal and compliance", sla: "3 business days" },
+    { id: 9, t: "Plain-language proposal summary", v: "cardano", k: "Freelancer", lane: 1, due: "Week 2", cp: "Venture lead", rv: "Proposal author", sla: "2 business days" },
+    { id: 10, t: "Delegate briefing deck", v: "cardano", k: "Internal", lane: 2, due: "Week 2", cp: "Head of Marketing", rv: "Venture lead", sla: "1 business day" },
+    { id: 11, t: "Quarterly roundup post", v: "io", k: "Internal", lane: 0, due: "Week 6", cp: "Head of Marketing", rv: "COO office", sla: "2 business days" },
+    { id: 12, t: "Weekly community answers digest", v: "io", k: "Contractor", lane: 4, due: "Weekly", cp: "Community lead", rv: "Community lead", sla: "1 business day" },
+    { id: 13, t: "Cohort retention report", v: "io", k: "Contractor", lane: 4, due: "Monthly", cp: "Head of Marketing", rv: "Head of Marketing", sla: "2 business days" }
+  ];
+  let CARDS = CARDS0.map(c => ({ ...c })), bv = "all", bt = "all", bsel = null;
+  function renderBoard() {
+    $("#bd-v").innerHTML = BV.map(([k, n]) => `<button class="btn" data-bv="${k}" aria-pressed="${k === bv}">${n}</button>`).join("");
+    $("#bd-t").innerHTML = BT.map(([k, n]) => `<button class="btn" data-bt="${k}" aria-pressed="${k === bt}">${n}</button>`).join("");
+    const vis = c => (bv === "all" || c.v === bv) && (bt === "all" || c.k === bt);
+    $("#bd-lanes").innerHTML = LANES.map((n, i) => {
+      const cs = CARDS.filter(c => c.lane === i && vis(c));
+      return `<div class="lane"><h4><span>${n}</span><span>${cs.length}</span></h4>${cs.map(c => `<button class="card" data-card="${c.id}" aria-pressed="${c.id === bsel}"><span>${c.t}</span><span class="chip" style="--c:${TCOL[c.k]}">${c.k}</span><span class="src">${(BV.find(x => x[0] === c.v) || [])[1]}, due ${c.due}</span></button>`).join("")}</div>`;
+    }).join("");
+    const c = CARDS.find(x => x.id === bsel);
+    $("#bd-detail").innerHTML = c
+      ? `<h3>${c.t}</h3><dl><dt>Lane</dt><dd>${LANES[c.lane]}</dd><dt>Done by</dt><dd>${c.k}</dd><dt>Internal counterpart</dt><dd>${c.cp}</dd><dt>Reviewed by</dt><dd>${c.rv}</dd><dt>Review window</dt><dd>${c.sla}</dd></dl><div class="seg"><button class="btn" data-adv="1" ${c.lane >= 4 ? "disabled" : ""}>Move to ${LANES[Math.min(4, c.lane + 1)]}</button><button class="btn" data-bres="1">Reset sample board</button></div>`
+      : `<p>Select a card to see who does the work, who reviews it, and how long review should take.</p><div class="seg"><button class="btn" data-bres="1">Reset sample board</button></div>`;
+    const n = CARDS.filter(x => x.lane === 2).length;
+    $("#bd-wip").innerHTML = n >= 4
+      ? `${pill("crit", "Review is the bottleneck")} ${n} items are waiting in review across all ventures. Review is the internal team's lane, so clear these before accepting new briefs.`
+      : `${pill("good", "Review is flowing")} ${n} item${n === 1 ? " is" : "s are"} in review across all ventures. Four or more waiting at once would signal a bottleneck.`;
+  }
+  const RC_ROLES = ["Head of Marketing", "Venture lead", "Legal and compliance", "Agency or freelancer", "Community lead", "COO"];
+  const RC = [
+    { n: "Launch announcement", v: ["A", "C", "C", "R", "I", "I"], note: "The Head of Marketing owns timing and message. Legal sees it before release." },
+    { n: "Claim about yield or returns", v: ["C", "C", "A", "R", "I", "I"], note: "Legal and compliance decides what may be said. Marketing never publishes a claim that has not been approved." },
+    { n: "Governance proposal explainer", v: ["A", "C", "C", "R", "C", "I"], note: "The proposal author is consulted for accuracy. The community lead shapes the questions it answers." },
+    { n: "Paid campaign", v: ["A", "C", "C", "R", "I", "I"], note: "Targeting is limited to permitted regions for RealFi." },
+    { n: "Hard community question", v: ["I", "C", "C", "R", "A", "I"], note: "The community lead decides how it is answered. Anything touching a claim goes to legal first." },
+    { n: "Budget change", v: ["R", "C", "I", "I", "I", "A"], note: "The COO approves any change to spend. The Head of Marketing prepares the case." }
+  ];
+  let rci = 0;
+  function renderRaci() {
+    $("#rc-btns").innerHTML = RC.map((r, i) => `<button class="btn" data-rw="${i}" aria-pressed="${i === rci}">${r.n}</button>`).join("");
+    $("#rc-head").innerHTML = `<tr><th>Role</th><th>Part in this work</th></tr>`;
+    const lab = { A: "Accountable", R: "Does the work", C: "Consulted", I: "Informed" };
+    $("#rc-body").innerHTML = RC_ROLES.map((r, i) => { const l = RC[rci].v[i]; return `<tr><td>${r}</td><td>${pill(l === "A" ? "good" : l === "R" ? "info" : "", l)} <span class="src">${lab[l]}</span></td></tr>`; }).join("");
+    $("#rc-note").textContent = RC[rci].note;
+  }
+  const lev = { tpl: false, wording: false, sync: false };
+  const LEVN = { tpl: "Standard brief template", wording: "Pre-approved wording library", sync: "One shared weekly sync" };
+  function capCalc(on) {
+    const T = +$("#cp-teams").value, B = +$("#cp-briefs").value, P = +$("#cp-people").value, F = +$("#cp-time").value / 100;
+    let r = +$("#cp-rev").value, s = +$("#cp-sync").value;
+    if (on.tpl) r *= 0.7; if (on.wording) r *= 0.8; if (on.sync) s *= 0.4;
+    const load = B * r + T * s, cap = P * 160 * F;
+    return { load, cap, u: load / cap, fits: Math.max(0, Math.floor((cap - T * s) / r)), B };
+  }
+  function renderCap() {
+    $("#cp-teams-o").textContent = $("#cp-teams").value; $("#cp-briefs-o").textContent = $("#cp-briefs").value;
+    $("#cp-rev-o").textContent = $("#cp-rev").value + " h"; $("#cp-sync-o").textContent = $("#cp-sync").value + " h";
+    $("#cp-people-o").textContent = $("#cp-people").value; $("#cp-time-o").textContent = $("#cp-time").value + "%";
+    $("#cp-lev").innerHTML = Object.keys(LEVN).map(k => `<button class="btn" data-lev="${k}" aria-pressed="${lev[k]}">${LEVN[k]}</button>`).join("");
+    const base = capCalc({}), now = capCalc(lev);
+    const pc = x => Math.round(x * 100) + "%";
+    const tone = now.u <= 0.8 ? "good" : now.u <= 1 ? "warn" : "crit";
+    $("#cp-kpis").innerHTML =
+      `<div class="kpi"><b>${Math.round(now.load)} h</b><span>Coordination and review load each month</span></div>` +
+      `<div class="kpi"><b>${Math.round(now.cap)} h</b><span>Internal capacity each month</span></div>` +
+      `<div class="kpi ${tone}"><b>${pc(now.u)}</b><span>Share of capacity used</span></div>` +
+      `<div class="kpi"><b>${pc(base.u)}</b><span>Share used with no levers</span></div>`;
+    const verdict = now.u <= 0.8 ? "That leaves room for surprises." : now.u <= 1 ? "That is tight, with little room for a launch week." : "That is over capacity, so something will queue.";
+    $("#cp-read").textContent = `At this rhythm the internal team can review about ${now.fits} items a month against ${now.B} planned. ${verdict}`;
+  }
+
+  /* ---------- Voice and AI ---------- */
+  const VOICES = [
+    { id: "io", name: "IO", d: [70, 65, 70], always: ["Say what shipped and what comes next", "Name who owns each product"], never: ["Promise dates the teams have not confirmed", "Speak for the community-owned chain"], sample: "This quarter's release is live. Here is what changed and what it means for builders." },
+    { id: "midnight", name: "Midnight", d: [45, 60, 60], always: ["Show what stays hidden and what is proven", "Give developers the exact next step"], never: ["Use absolutes such as unhackable", "Treat privacy as secrecy for its own sake"], sample: "Deploy your first private contract in an afternoon. Here is the walkthrough." },
+    { id: "city", name: "Midnight City", d: [65, 25, 35], always: ["Show the agents doing something, then explain why it matters", "Invite people to the Friday hangout"], never: ["Sell it as a game or a token", "Imply the agents act without limits"], sample: "Meet this week's agents. See what they decided, then try making your own." },
+    { id: "lace", name: "Lace", d: [85, 45, 55], always: ["Ask for one action per message: send, stake or vote", "Explain fees before the click"], never: ["Hide fees or lock-in", "Use jargon the first screen does not explain"], sample: "Your vote is open. Here is what it decides, in two minutes." },
+    { id: "pogun", name: "Pogun", d: [80, 70, 80], always: ["Show terms, fees and risks beside every offer", "Say plainly that the launch date is a goal until it is confirmed"], never: ["Promise returns", "Name a host chain before it is confirmed"], sample: "The waitlist is open. Here is how a Bitcoin-backed loan works and what it costs." },
+    { id: "realfi", name: "RealFi", d: [80, 80, 95], always: ["Use only reviewed wording", "State who can and cannot use it"], never: ["Mention returns without the approved language", "Market to the US, EU or UK"], sample: "Available in permitted regions. Read the terms before you deposit." },
+    { id: "cardano", name: "Cardano", d: [60, 70, 85], always: ["Present facts and let delegates decide", "Credit the community teams doing the work"], never: ["Speak as if IO owns the chain", "Call anything settled before the vote closes"], sample: "Here is the proposal in plain language, with the arguments on both sides." }
+  ];
+  const DIALS = [["Technical", "Plain"], ["Playful", "Serious"], ["Bold", "Measured"]];
+  let vo = "midnight";
+  function renderVoice() {
+    $("#vo-btns").innerHTML = VOICES.map(v => `<button class="btn" data-vo="${v.id}" aria-pressed="${v.id === vo}">${v.name}</button>`).join("");
+    const v = VOICES.find(x => x.id === vo);
+    $("#vo-dials").innerHTML = `<span class="eyebrow">${v.name} voice</span>` + DIALS.map((p, i) => `<div class="vrow"><span>${p[0]}</span><div class="vtrack" role="img" aria-label="${v.name} is ${v.d[i]} on a scale from ${p[0]} to ${p[1]}"><i style="left:${v.d[i]}%"></i></div><span>${p[1]}</span></div>`).join("")
+      + `<p><b>Sounds like:</b> "${v.sample}"</p>`;
+    $("#vo-say").innerHTML = `<span class="eyebrow">Always</span><ul class="say">${v.always.map(x => `<li>${x}</li>`).join("")}</ul><span class="eyebrow">Never</span><ul class="say">${v.never.map(x => `<li>${x}</li>`).join("")}</ul>`;
+  }
+  const TIER = { free: ["good", "Draft freely"], review: ["warn", "Draft, then review"], human: ["crit", "Human only"] };
+  const AIT = [
+    { id: 1, n: "Social post drafts", tier: "free", ai: "Offers several options from the brief.", check: "The writer picks one and edits it for voice.", log: "Prompt and final text." },
+    { id: 2, n: "Community thread summaries", tier: "free", ai: "Summarizes long threads into themes.", check: "The community lead checks three quotes against the thread.", log: "Links to the source threads." },
+    { id: 3, n: "Report commentary", tier: "review", ai: "Drafts commentary on a dashboard.", check: "An analyst verifies every number against the data.", log: "Date and source of the data pull." },
+    { id: 4, n: "Translations", tier: "review", ai: "Drafts a first translation.", check: "A native reader reviews it. Legal also reads anything with a claim.", log: "Reviewer's name." },
+    { id: 5, n: "Proposal explainers", tier: "review", ai: "Rewrites a proposal in plain language.", check: "The proposal author confirms accuracy.", log: "Version of the proposal used." },
+    { id: 6, n: "Images and video", tier: "review", ai: "Produces concepts.", check: "A designer and the Head of Marketing check brand fit and usage rights.", log: "Tool used and license terms." },
+    { id: 7, n: "Claims about returns or availability", tier: "human", ai: "Not used to write them.", check: "Only wording already approved by legal and compliance may be used.", log: "Approval reference." },
+    { id: 8, n: "Sensitive community questions", tier: "human", ai: "May find earlier answers. Does not write the reply.", check: "The community lead writes and sends it.", log: "The ticket and the reply." }
+  ];
+  let ai = 3;
+  function renderAI() {
+    $("#ai-btns").innerHTML = AIT.map(t => `<button class="btn" data-ai="${t.id}" aria-pressed="${t.id === ai}">${t.n}</button>`).join("");
+    const t = AIT.find(x => x.id === ai);
+    $("#ai-detail").innerHTML = `<div>${pill(TIER[t.tier][0], TIER[t.tier][1])}</div><h3>${t.n}</h3><dl><dt>What AI does</dt><dd>${t.ai}</dd><dt>What a person checks</dt><dd>${t.check}</dd><dt>What is logged</dt><dd>${t.log}</dd></dl>`;
+  }
+  const ACP = [["free", "Draft freely", 70, 15, 0.25], ["review", "Draft, then review", 60, 25, 0.75], ["human", "Regulated claims", 30, 40, 2]];
+  function renderAcalc() {
+    $("#ac-pre").innerHTML = ACP.map(p => `<button class="btn" data-aip="${p[0]}">${p[1]}</button>`).join("");
+    const n = +$("#ac-n").value, h = +$("#ac-h").value, s = +$("#ac-s").value / 100, r = +$("#ac-r").value / 100, c = +$("#ac-c").value;
+    $("#ac-n-o").textContent = n; $("#ac-h-o").textContent = h + " h"; $("#ac-s-o").textContent = Math.round(s * 100) + "%"; $("#ac-r-o").textContent = Math.round(r * 100) + "%"; $("#ac-c-o").textContent = c + " h";
+    const withAi = h * (1 - s) + r * h * 0.5 + c, net = h - withAi, tot = net * n;
+    const tone = net > 0.5 ? "good" : net > 0 ? "warn" : "crit";
+    const f1 = x => (Math.round(x * 10) / 10).toFixed(1);
+    $("#ac-kpis").innerHTML = `<div class="kpi ${tone}"><b>${tot >= 0 ? "+" : "-"}${Math.abs(Math.round(tot))} h</b><span>Net hours each month</span></div><div class="kpi"><b>${f1(h)} h</b><span>Per item by hand</span></div><div class="kpi"><b>${f1(withAi)} h</b><span>Per item with AI and checking</span></div>`;
+    $("#ac-read").textContent = net > 0.5 ? `AI returns about ${f1(net)} hours per item after checking, so it earns its place here.`
+      : net > 0 ? `AI saves only ${f1(net)} hours per item once checking is counted. Use it for outlines, not full drafts.`
+      : `With checking counted, AI costs ${f1(-net)} hours more per item than writing by hand. That is why this work stays with people.`;
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener("click", e => {
+    const t = e.target.closest("[data-v],[data-bm],[data-ev],[data-lv],[data-lm],[data-fv],[data-pr],[data-bv],[data-bt],[data-card],[data-adv],[data-bres],[data-rw],[data-lev],[data-vo],[data-ai],[data-aip],.tabs a");
+    if (!t) return;
+    if (t.matches(".tabs a")) {
+      e.preventDefault();
+      const id = t.getAttribute("href").slice(1);
+      try { location.hash = id; } catch (_) { /* hash may be locked in some frames */ }
+      showView(id);
+      return;
+    }
+    if (t.dataset.v) { selV = t.dataset.v; renderPortfolio(); const b = $(`[data-v="${selV}"]`); if (b) b.focus(); }
+    else if (t.dataset.bm) { bm = t.dataset.bm; renderBrand(); const b = $(`[data-bm="${bm}"]`); if (b) b.focus(); }
+    else if (t.dataset.ev) { selEv = +t.dataset.ev; renderGrid(); renderEvDetail(); const b = $(`[data-ev="${selEv}"]`); if (b) b.focus(); }
+    else if (t.dataset.lv) { lv = t.dataset.lv; renderLadder(); const b = $(`[data-lv="${lv}"]`); if (b) b.focus(); }
+    else if (t.dataset.fv) { setFunnel(t.dataset.fv); const b = $(`[data-fv="${fv}"]`); if (b) b.focus(); }
+    else if (t.dataset.bv) { bv = t.dataset.bv; renderBoard(); const b = $(`[data-bv="${bv}"]`); if (b) b.focus(); }
+    else if (t.dataset.bt) { bt = t.dataset.bt; renderBoard(); const b = $(`[data-bt="${bt}"]`); if (b) b.focus(); }
+    else if (t.dataset.card) { bsel = +t.dataset.card; renderBoard(); const b = $(`[data-card="${bsel}"]`); if (b) b.focus(); }
+    else if (t.dataset.adv) { const c = CARDS.find(x => x.id === bsel); if (c && c.lane < 4) { c.lane++; } renderBoard(); const b = $(`[data-card="${bsel}"]`) || $("[data-adv]"); if (b) b.focus(); }
+    else if (t.dataset.bres) { CARDS = CARDS0.map(c => ({ ...c })); bsel = null; renderBoard(); }
+    else if (t.dataset.rw) { rci = +t.dataset.rw; renderRaci(); const b = $(`[data-rw="${rci}"]`); if (b) b.focus(); }
+    else if (t.dataset.lev) { lev[t.dataset.lev] = !lev[t.dataset.lev]; renderCap(); const b = $(`[data-lev="${t.dataset.lev}"]`); if (b) b.focus(); }
+    else if (t.dataset.vo) { vo = t.dataset.vo; renderVoice(); const b = $(`[data-vo="${vo}"]`); if (b) b.focus(); }
+    else if (t.dataset.ai) { ai = +t.dataset.ai; renderAI(); const b = $(`[data-ai="${ai}"]`); if (b) b.focus(); }
+    else if (t.dataset.aip) { const p = ACP.find(x => x[0] === t.dataset.aip); $("#ac-s").value = p[2]; $("#ac-r").value = p[3]; $("#ac-c").value = p[4]; renderAcalc(); const b = $(`[data-aip="${p[0]}"]`); if (b) b.focus(); }
+    else if (t.dataset.pr) { $("#cm-s").value = t.dataset.pr; renderUndec(); }
+    else if (t.dataset.lm) { lmode = t.dataset.lm; renderLadder(); const b = $(`[data-lm="${lmode}"]`); if (b) b.focus(); }
+  });
+  $("#sc-range").addEventListener("input", e => { off = +e.target.value; renderScenario(); });
+  ["#cv-a", "#cv-b"].forEach(s => $(s).addEventListener("input", renderConv));
+  ["teams", "briefs", "rev", "sync", "people", "time"].forEach(k => $("#cp-" + k).addEventListener("input", renderCap));
+  ["n", "h", "s", "r", "c"].forEach(k => $("#ac-" + k).addEventListener("input", renderAcalc));
+  $("#cm-d").addEventListener("input", renderVote);
+  ["#cm-s", "#cm-u"].forEach(s => $(s).addEventListener("input", renderUndec));
+  ["spend", "cpv", "c1", "c2", "c3", "val", "mo"].forEach(k => $("#fn-" + k).addEventListener("input", renderFunnel));
+
+  /* ---------- start ---------- */
+  renderPortfolio(); renderBrand();
+  renderEvDetail(); renderEvTable(); renderBusiest(); renderScenario();
+  renderLadder(); renderConv(); renderChart(); setFunnel("midnight"); renderVote(); renderUndec(); renderBoard(); renderRaci(); renderCap(); renderVoice(); renderAI(); renderAcalc();
+  fromHash();
+})();
+</script>
+
+</body></html>
